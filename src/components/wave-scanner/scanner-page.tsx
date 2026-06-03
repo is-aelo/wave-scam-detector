@@ -29,16 +29,11 @@ export function ScannerPage() {
   const [screen, setScreen] = useState<ScreenState>("landing")
   const [activeTab, setActiveTab] = useState<ScanMode>("message")
   const [scanMode, setScanMode] = useState<ScanMode>("message")
-  const [messageText, setMessageText] = useState(
-    "Hi, can you complete this task first? We will pay after the next milestone.",
-  )
-  const [messageSource, setMessageSource] = useState(
-    "Received from a new client on Facebook Messenger",
-  )
-  const [messageContext, setMessageContext] = useState("")
+  const [messageText, setMessageText] = useState("")
+  const [messageSource, setMessageSource] = useState("")
   const [messageEvidence, setMessageEvidence] = useState("")
-  const [urlText, setUrlText] = useState("https://example.com/login")
-  const [urlSource, setUrlSource] = useState("Shared by someone I do not fully trust")
+  const [urlText, setUrlText] = useState("")
+  const [urlSource, setUrlSource] = useState("")
   const [urlContext, setUrlContext] = useState("")
   const [urlEvidence, setUrlEvidence] = useState("")
   const [result, setResult] = useState<ScanResponse | null>(null)
@@ -61,18 +56,14 @@ export function ScannerPage() {
     try {
       const response = await fetch("/api/scan", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       })
-
       return (await response.json()) as ScanResponse
     } catch (error) {
       return {
         ok: false,
-        error:
-          error instanceof Error ? error.message : "Failed to reach the backend.",
+        error: error instanceof Error ? error.message : "Failed to reach the backend.",
       } as const
     }
   }
@@ -121,29 +112,26 @@ export function ScannerPage() {
 
   async function handleMessageSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-
     await runScan(
       {
         input_text: messageText,
-        source: messageSource,
-        context: messageContext,
-        evidence: messageEvidence,
+        source: messageSource || undefined,
+        evidence: messageEvidence || undefined,
       },
       "message",
-      `wave scan "${shorten(messageText)}" --mode job-seeker`,
+      `wave scan "${shorten(messageText)}" --mode message`,
     )
   }
 
   async function handleLinkSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-
     await runScan(
       {
         input_text: "Analyze this URL for scam or fraud risk.",
-        source: urlSource,
+        source: urlSource || undefined,
         url: urlText,
-        context: urlContext,
-        evidence: urlEvidence,
+        context: urlContext || undefined,
+        evidence: urlEvidence || undefined,
       },
       "link",
       `wave scan "${shorten(urlText)}" --mode url`,
@@ -179,30 +167,54 @@ export function ScannerPage() {
       ) : null}
 
       {screen === "scanner" ? (
-        <div className="mx-auto w-full max-w-[660px] px-4 py-12 sm:px-6 sm:py-16 lg:py-20">
-          <section>
-            <div className="mb-8">
-              <h2 className="text-[22px] font-medium leading-tight tracking-normal">
-                Run a scan
-              </h2>
-              <p className="mt-1 text-[13px] text-foreground-secondary">
-                Paste a message or URL below. The more context you provide, the
-                better the result.
-              </p>
-            </div>
+        <div
+          style={{
+            maxWidth: 620,
+            margin: "0 auto",
+            padding: "32px 16px",
+          }}
+        >
+          <div style={{ marginBottom: 24 }}>
+            <h2
+              style={{
+                fontSize: 22,
+                fontWeight: 500,
+                letterSpacing: "-0.02em",
+                color: "var(--foreground)",
+                marginBottom: 4,
+              }}
+            >
+              Run a scan
+            </h2>
+            <p
+              style={{
+                fontSize: 13,
+                color: "var(--foreground-muted)",
+                lineHeight: 1.6,
+              }}
+            >
+              Paste a message or URL. The more context you provide, the better the result.
+            </p>
+          </div>
 
+          <div
+            style={{
+              background: "var(--primary-dim)",
+              border: "0.5px solid var(--border-subtle)",
+              borderRadius: 14,
+              padding: "20px 24px",
+            }}
+          >
             <ScanTabs value={activeTab} onValueChange={setActiveTab} />
 
             {activeTab === "message" ? (
               <MessageScanForm
                 messageText={messageText}
                 messageSource={messageSource}
-                messageContext={messageContext}
                 messageEvidence={messageEvidence}
                 loading={loading}
                 onMessageTextChange={setMessageText}
                 onMessageSourceChange={setMessageSource}
-                onMessageContextChange={setMessageContext}
                 onMessageEvidenceChange={setMessageEvidence}
                 onExampleSelect={setMessageText}
                 onSubmit={handleMessageSubmit}
@@ -222,7 +234,7 @@ export function ScannerPage() {
                 onSubmit={handleLinkSubmit}
               />
             )}
-          </section>
+          </div>
         </div>
       ) : null}
 
@@ -254,9 +266,6 @@ function sleep(ms: number) {
 
 function shorten(value: string) {
   const trimmed = value.trim()
-  if (!trimmed) {
-    return "..."
-  }
-
+  if (!trimmed) return "..."
   return trimmed.length > 36 ? `${trimmed.slice(0, 33)}...` : trimmed
 }

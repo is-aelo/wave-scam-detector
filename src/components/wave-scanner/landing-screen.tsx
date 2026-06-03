@@ -20,8 +20,8 @@ type LandingScreenProps = {
 const trustItems = [
   {
     icon: ShieldCheck,
-    value: "6 modes",
-    label: "Freelancer, job, URL, and more",
+    value: "No account required",
+    label: "Quick scans without signing up",
   },
   {
     icon: Lightning,
@@ -99,14 +99,6 @@ export function LandingScreen({
           <LinkSimple size={18} weight="duotone" />
           Check a link
         </Button>
-      </div>
-
-      <div className="mx-auto mt-5 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 font-mono text-[11px] text-foreground-subtle">
-        <span>No account required</span>
-        <span className="text-border-strong">/</span>
-        <span>Private by default</span>
-        <span className="text-border-strong">/</span>
-        <span>Built for job seekers and freelancers</span>
       </div>
 
       <div className="mx-auto mt-12 grid max-w-3xl gap-4 border-t border-border-subtle pt-7 sm:grid-cols-3">

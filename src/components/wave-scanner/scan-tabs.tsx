@@ -1,8 +1,6 @@
 "use client"
 
-import { ChatCenteredText, LinkSimple } from "@phosphor-icons/react"
-
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { ChatCircleText, LinkSimple } from "@phosphor-icons/react"
 import type { ScanMode } from "@/lib/wave-scan-view"
 
 type ScanTabsProps = {
@@ -10,29 +8,50 @@ type ScanTabsProps = {
   onValueChange: (value: ScanMode) => void
 }
 
+const tabs: { value: ScanMode; label: string; Icon: typeof ChatCircleText }[] = [
+  { value: "message", label: "Message", Icon: ChatCircleText },
+  { value: "link", label: "URL", Icon: LinkSimple },
+]
+
 export function ScanTabs({ value, onValueChange }: ScanTabsProps) {
   return (
-    <Tabs
-      value={value}
-      onValueChange={(nextValue) => onValueChange(nextValue as ScanMode)}
-      className="mb-6 w-fit max-w-full"
+    <div
+      role="tablist"
+      style={{
+        display: "flex",
+        borderBottom: "0.5px solid var(--border-subtle)",
+        marginBottom: 24,
+      }}
     >
-      <TabsList className="grid h-9 w-fit grid-cols-2 overflow-hidden rounded-lg border border-border-subtle bg-background/40 p-0.5">
-        <TabsTrigger
-          value="message"
-          className="rounded-md px-4 py-1.5 text-xs font-medium text-foreground-subtle data-[state=active]:bg-surface-raised data-[state=active]:text-foreground"
-        >
-          <ChatCenteredText size={16} weight="duotone" />
-          Message
-        </TabsTrigger>
-        <TabsTrigger
-          value="link"
-          className="rounded-md px-4 py-1.5 text-xs font-medium text-foreground-subtle data-[state=active]:bg-surface-raised data-[state=active]:text-foreground"
-        >
-          <LinkSimple size={16} weight="duotone" />
-          URL
-        </TabsTrigger>
-      </TabsList>
-    </Tabs>
+      {tabs.map(({ value: tabValue, label, Icon }) => {
+        const active = value === tabValue
+        return (
+          <button
+            key={tabValue}
+            role="tab"
+            aria-selected={active}
+            onClick={() => onValueChange(tabValue)}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 7,
+              padding: "10px 18px",
+              fontSize: 13,
+              fontWeight: active ? 500 : 400,
+              color: active ? "var(--foreground)" : "var(--foreground-subtle)",
+              background: "transparent",
+              border: "none",
+              borderBottom: active ? "1.5px solid var(--foreground)" : "1.5px solid transparent",
+              marginBottom: -0.5,
+              cursor: "pointer",
+              transition: "color 0.15s ease, border-color 0.15s ease",
+            }}
+          >
+            <Icon size={14} weight={active ? "fill" : "regular"} />
+            {label}
+          </button>
+        )
+      })}
+    </div>
   )
 }
