@@ -2,6 +2,28 @@
 
 This repository is for **Wave**, an AI-powered scam and risk detection assistant. Follow these rules when exploring, editing, or extending the project.
 
+## File Map
+
+Use this map first to avoid rediscovering the app structure.
+
+- App entry: `src/app/page.tsx` renders `ScannerPage`.
+- Root layout, metadata, and fonts: `src/app/layout.tsx`.
+- Global design tokens and theme values: `src/app/globals.css`.
+- Scan API route: `src/app/api/scan/route.ts`.
+- Core scam analysis prompt and Gemini call: `src/lib/wave-scan.ts`.
+- Scan response parsing, view types, risk tone helpers: `src/lib/wave-scan-view.ts`.
+- Shared class-name helper: `src/lib/utils.ts`.
+- Main screen state and scan flow orchestration: `src/components/wave-scanner/scanner-page.tsx`.
+- Top navigation: `src/components/wave-scanner/scanner-nav.tsx`.
+- Landing page layout and feature breakdown: `src/components/wave-scanner/landing-screen.tsx`.
+- Landing animated demo loop: `src/components/wave-scanner/landing-demo.tsx`.
+- Message scan form and image attachment UI: `src/components/wave-scanner/message-scan-form.tsx`.
+- URL scan form and image attachment UI: `src/components/wave-scanner/link-scan-form.tsx`.
+- Message/URL tab selector: `src/components/wave-scanner/scan-tabs.tsx`.
+- Loading terminal animation: `src/components/wave-scanner/scan-loading-terminal.tsx`.
+- Scan result report UI: `src/components/wave-scanner/scan-result-panel.tsx`.
+- shadcn primitives: `src/components/ui/*`.
+
 ## Project Rules
 
 - Keep Wave scoped to scam and risk detection only.
