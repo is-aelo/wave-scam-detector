@@ -1,29 +1,13 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { getRiskColor } from "@/lib/wave-scan-view"
 
 interface CircularRiskIndicatorProps {
   score: number
   riskLevel: string
   size?: number
   animated?: boolean
-}
-
-function getRiskColor(riskLevel: string): string {
-  switch (riskLevel) {
-    case "Safe":
-      return "var(--risk-safe)"
-    case "Low Risk":
-      return "var(--risk-low)"
-    case "Caution":
-      return "var(--risk-caution)"
-    case "Suspicious":
-      return "var(--risk-suspicious)"
-    case "High Risk":
-      return "var(--risk-high)"
-    default:
-      return "var(--primary)"
-  }
 }
 
 export function CircularRiskIndicator({

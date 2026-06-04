@@ -82,7 +82,7 @@ export function LandingDemo() {
 
   return (
     <div className="relative mx-auto w-full max-w-[580px]">
-      <div className="relative overflow-hidden rounded-xl border border-border bg-card shadow-[var(--shadow-glow)]">
+      <div className="relative overflow-hidden rounded-xl border border-border bg-card">
         <div className="flex items-center gap-3 border-b border-border-subtle bg-surface-secondary px-4 py-3">
           <div className="flex gap-1.5">
             <span className="h-2.5 w-2.5 rounded-full bg-danger/70" />
@@ -101,7 +101,7 @@ export function LandingDemo() {
               <span className="text-xs font-medium text-foreground-muted">
                 Message to analyze
               </span>
-              <span className="rounded-md border border-border-subtle bg-surface px-2 py-0.5 text-[10px] text-foreground-subtle">
+              <span className="rounded-md border border-border-subtle bg-surface px-2 py-0.5 text-2xs text-foreground-subtle">
                 Messenger
               </span>
             </div>
@@ -123,7 +123,7 @@ export function LandingDemo() {
                 className={`flex h-9 w-9 items-center justify-center rounded-lg transition-all duration-300 ${
                   phase === "typing"
                     ? "bg-surface-tertiary text-foreground-subtle"
-                    : "bg-primary text-primary-foreground shadow-[0_0_12px_rgba(196,168,130,0.4)]"
+                    : "bg-primary text-primary-foreground"
                 }`}
               >
                 <PaperPlaneTilt size={15} weight="fill" />
@@ -142,13 +142,12 @@ export function LandingDemo() {
                 Analysis results
               </span>
               {phase === "analyzing" && (
-                <span className="ml-auto flex items-center gap-1.5 text-[11px] text-foreground-muted">
-                  <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-primary" />
+                <span className="ml-auto text-2xs text-foreground-muted">
                   Scanning signals...
                 </span>
               )}
               {showResult && (
-                <span className="ml-auto text-[11px] text-safe">Complete</span>
+                <span className="ml-auto text-2xs text-safe">Complete</span>
               )}
             </div>
 
@@ -172,14 +171,9 @@ export function LandingDemo() {
                 ))}
               </div>
             ) : (
-              <div className="flex items-center gap-2 text-xs text-foreground-subtle">
-                <div className="flex gap-1">
-                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-foreground-muted/40" style={{ animationDelay: "0ms" }} />
-                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-foreground-muted/40" style={{ animationDelay: "200ms" }} />
-                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-foreground-muted/40" style={{ animationDelay: "400ms" }} />
-                </div>
-                <span>Waiting for message</span>
-              </div>
+              <span className="text-xs text-foreground-subtle">
+                Waiting for message
+              </span>
             )}
 
             <div

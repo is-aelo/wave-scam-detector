@@ -79,10 +79,9 @@ export function ScanLoadingTerminal({
               </div>
             </div>
 
-            <div className="flex items-center gap-2 text-xs text-foreground-muted">
-              <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-primary" />
-              <span>Processing...</span>
-            </div>
+            <span className="text-xs text-foreground-muted">
+              Processing...
+            </span>
           </div>
         </CardContent>
       </Card>

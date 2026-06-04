@@ -1,8 +1,27 @@
 "use client"
 
+import { getRiskColor } from "@/lib/wave-scan-view"
+
 interface RiskSpectrumBarProps {
   score: number
   riskLevel: string
+}
+
+function getRiskBorder(riskLevel: string): string {
+  switch (riskLevel) {
+    case "Safe":
+      return "var(--risk-safe-border)"
+    case "Low Risk":
+      return "var(--risk-low-border)"
+    case "Caution":
+      return "var(--risk-caution-border)"
+    case "Suspicious":
+      return "var(--risk-suspicious-border)"
+    case "High Risk":
+      return "var(--risk-high-border)"
+    default:
+      return "var(--risk-safe-border)"
+  }
 }
 
 const STOPS = [
@@ -13,17 +32,9 @@ const STOPS = [
   { label: "High", color: "var(--risk-high)", position: 100 },
 ]
 
-function getMarkerColor(score: number): string {
-  if (score <= 20) return "var(--risk-safe)"
-  if (score <= 40) return "var(--risk-low)"
-  if (score <= 60) return "var(--risk-caution)"
-  if (score <= 80) return "var(--risk-suspicious)"
-  return "var(--risk-high)"
-}
-
 export function RiskSpectrumBar({ score, riskLevel }: RiskSpectrumBarProps) {
   const percentage = Math.min(Math.max(score, 0), 100)
-  const markerColor = getMarkerColor(percentage)
+  const markerColor = getRiskColor(riskLevel)
 
   return (
     <div>
@@ -64,7 +75,7 @@ export function RiskSpectrumBar({ score, riskLevel }: RiskSpectrumBarProps) {
             height: 10,
             borderRadius: "50%",
             background: markerColor,
-            boxShadow: `0 0 0 2px rgba(${markerColor}, 0.2)`,
+            boxShadow: `0 0 0 2px ${getRiskBorder(riskLevel)}`,
             transition: "left 0.6s cubic-bezier(0.4, 0, 0.2, 1)",
             zIndex: 1,
           }}

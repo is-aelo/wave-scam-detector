@@ -1,4 +1,9 @@
-import { ArrowRight, ShieldCheck } from "@phosphor-icons/react"
+import {
+  ArrowRight,
+  ClockCounterClockwise,
+  ShieldCheck,
+  WarningCircle,
+} from "@phosphor-icons/react"
 
 import { Button } from "@/components/ui/button"
 import { CircularRiskIndicator } from "@/components/ui/circular-risk-indicator"
@@ -6,8 +11,11 @@ import { RiskSpectrumBar } from "@/components/ui/risk-spectrum-bar"
 import { EnhancedRedFlags } from "@/components/ui/enhanced-red-flags"
 import {
   formatPercent,
+  getRiskLevelFromScore,
   getRiskLevelTone,
   isParsedScan,
+  normalizeRiskScore,
+  reconcileRiskLevel,
   type ScanMode,
   type ScanResponse,
 } from "@/lib/wave-scan-view"
@@ -60,12 +68,15 @@ export function ScanResultPanel({
   onBackHome,
 }: ScanResultPanelProps) {
   const modeLabel = mode === "message" ? "Message scan" : "Link scan"
+  const riskScore = normalizeRiskScore(result?.ok && isParsedScan(result.parsed) ? result.parsed.risk_score : undefined)
+  const aiLevel = result?.ok && isParsedScan(result.parsed) ? result.parsed.risk_level : undefined
+  const displayRiskLevel = reconcileRiskLevel(aiLevel, riskScore)
 
   return (
     <div className="mx-auto w-full max-w-2xl px-4 py-6 sm:px-6">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
         <div>
-          <p className="mb-0.5 text-[11px] font-medium uppercase tracking-wider text-foreground-subtle">
+          <p className="mb-0.5 text-2xs font-medium uppercase tracking-wider text-foreground-subtle">
             {modeLabel}
           </p>
           <h2 className="text-xl font-bold tracking-tight text-foreground sm:text-[22px]">
@@ -77,7 +88,7 @@ export function ScanResultPanel({
           <Button
             variant="ghost"
             size="sm"
-            className="text-[13px] text-foreground-muted"
+            className="text-2sm text-foreground-muted"
             onClick={onBackHome}
           >
             <ArrowRight size={12} weight="bold" className="rotate-180" />
@@ -86,7 +97,7 @@ export function ScanResultPanel({
           <Button
             variant="outline"
             size="sm"
-            className="border-border text-[13px] text-foreground-secondary"
+            className="border-border text-2sm text-foreground-secondary"
             style={{ background: "transparent" }}
             onClick={onNewScan}
           >
@@ -98,7 +109,7 @@ export function ScanResultPanel({
       {!result ? (
         <EmptyState />
       ) : !result.ok ? (
-        <ErrorState error={result.error} />
+        <ErrorState error={result.error} onRetry={onNewScan} />
       ) : isParsedScan(result.parsed) ? (
         <div className="flex flex-col gap-4">
           {/* Card 1: Risk verdict */}
@@ -106,24 +117,24 @@ export function ScanResultPanel({
             <div className="flex flex-col sm:flex-row">
               <div className="flex flex-col items-center justify-center gap-2 border-b border-border px-4 py-6 sm:border-b-0 sm:border-r sm:px-8 sm:py-7">
                 <CircularRiskIndicator
-                  score={typeof result.parsed.risk_score === "number" ? result.parsed.risk_score : 0}
-                  riskLevel={result.parsed.risk_level ?? "Unknown"}
+                  score={riskScore}
+                  riskLevel={displayRiskLevel}
                   size={72}
                   animated
                 />
                 <span
-                  className="text-[10px] font-semibold uppercase tracking-wider"
-                  style={{ color: getRiskAccentColor(result.parsed.risk_level) }}
+                  className="text-2xs font-semibold uppercase tracking-wider"
+                  style={{ color: getRiskAccentColor(displayRiskLevel) }}
                 >
-                  {result.parsed.risk_level ?? "Unknown"}
+                  {displayRiskLevel}
                 </span>
               </div>
 
               <div className="flex flex-1 flex-col justify-center gap-2 px-5 py-5 sm:px-7 sm:py-6">
-                <p className="text-[15px] font-semibold leading-snug tracking-tight text-foreground">
+                <p className="text-sm font-semibold leading-snug tracking-tight text-foreground">
                   {verdictTitle(result.parsed.risk_level)}
                 </p>
-                <p className="text-[13px] leading-relaxed text-foreground-muted">
+                <p className="text-2sm leading-relaxed text-foreground-muted">
                   {result.parsed.summary ?? "No summary returned."}
                 </p>
               </div>
@@ -131,28 +142,28 @@ export function ScanResultPanel({
           </div>
 
           {/* Card 2: Risk spectrum */}
-          <div className="rounded-xl border border-border-card bg-background-elevated px-4 py-3.5 shadow-[var(--shadow-elevation-low)] sm:px-6 sm:py-4">
+          <div className="rounded-xl bg-background-elevated px-4 py-3.5 sm:px-6 sm:py-4">
             <RiskSpectrumBar
-              score={typeof result.parsed.risk_score === "number" ? result.parsed.risk_score : 0}
-              riskLevel={result.parsed.risk_level ?? "Unknown"}
+              score={riskScore}
+              riskLevel={displayRiskLevel}
             />
           </div>
 
           {/* Card 3: Red flags */}
           <div className="rounded-xl border border-border-card bg-background-elevated px-4 py-4 shadow-[var(--shadow-elevation-mid)] sm:px-6 sm:py-5">
             <div className="mb-3 flex items-center justify-between sm:mb-3.5">
-              <span className="text-[11px] font-semibold uppercase tracking-wider text-foreground-subtle">
+              <span className="text-2xs font-semibold uppercase tracking-wider text-foreground-subtle">
                 Red flags
               </span>
               {result.parsed.red_flags?.length ? (
-                <span className="text-[11px] text-foreground-subtle">
+                <span className="text-2xs text-foreground-subtle">
                   {result.parsed.red_flags.length} signals
                 </span>
               ) : null}
             </div>
             <EnhancedRedFlags
               flags={result.parsed.red_flags ?? []}
-              riskLevel={result.parsed.risk_level ?? "Unknown"}
+              riskLevel={displayRiskLevel}
             />
           </div>
 
@@ -166,7 +177,7 @@ export function ScanResultPanel({
                 {
                   label: "Confidence",
                   value: formatPercent(result.parsed.confidence),
-                  accent: getRiskAccentColor(result.parsed.risk_level),
+                  accent: getRiskAccentColor(displayRiskLevel),
                 },
               ].map((item, i, arr) => (
                 <div
@@ -177,11 +188,11 @@ export function ScanResultPanel({
                     borderBottom: i < arr.length - 2 ? "1px solid var(--border)" : "none",
                   }}
                 >
-                  <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-foreground-subtle">
+                  <p className="mb-1 text-2xs font-semibold uppercase tracking-wider text-foreground-subtle">
                     {item.label}
                   </p>
                   <p
-                    className="text-[13px] font-medium"
+                    className="text-2sm font-medium"
                     style={{ color: item.accent ?? "var(--foreground)" }}
                   >
                     {item.value}
@@ -191,40 +202,40 @@ export function ScanResultPanel({
             </div>
           </div>
 
-          {/* Card 5 & 6: Impact + Guidance side by side */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className="rounded-xl border border-l-2 border-l-accent-brand border-border-card bg-background-elevated px-4 py-4 shadow-[var(--shadow-elevation-mid)] sm:px-5 sm:py-5">
-              <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-foreground-subtle sm:mb-2.5">
+          {/* Card 5 & 6: Impact + Guidance full width */}
+          <div className="flex flex-col gap-4">
+            <div className="rounded-xl border-2 border-accent-brand/30 bg-background-elevated px-4 py-4 shadow-[var(--shadow-elevation-mid)] sm:px-5 sm:py-5">
+              <p className="mb-2 text-2xs font-semibold uppercase tracking-wider text-foreground-subtle sm:mb-2.5">
                 What could happen
               </p>
-              <p className="text-[13px] leading-relaxed text-foreground-secondary">
+              <p className="text-2sm leading-relaxed text-foreground-secondary">
                 {result.parsed.what_could_happen ?? "No scenario was returned."}
               </p>
             </div>
 
-            <div className="rounded-xl border border-l-2 border-l-accent-brand border-border-card bg-background-elevated px-4 py-4 shadow-[var(--shadow-elevation-mid)] sm:px-5 sm:py-5">
-              <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-foreground-subtle sm:mb-2.5">
+            <div className="rounded-xl border-2 border-accent-brand/30 bg-background-elevated px-4 py-4 shadow-[var(--shadow-elevation-mid)] sm:px-5 sm:py-5">
+              <p className="mb-2 text-2xs font-semibold uppercase tracking-wider text-foreground-subtle sm:mb-2.5">
                 Recommendation
               </p>
-              <p className="text-[13px] leading-relaxed text-foreground-secondary">
+              <p className="text-2sm leading-relaxed text-foreground-secondary">
                 {result.parsed.recommendation ?? "No recommendation was returned."}
               </p>
             </div>
           </div>
 
           {/* Card 7: Footer */}
-          <div className="rounded-xl border border-border-card bg-background-elevated px-4 py-3 shadow-[var(--shadow-elevation-low)] sm:px-6">
+          <div className="rounded-xl bg-surface-secondary px-4 py-3 sm:px-6">
             <div className="flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-center sm:gap-4">
               <div className="flex items-center gap-2">
-                <span className="text-[11px] text-foreground-subtle">
+                <span className="text-2xs text-foreground-subtle">
                   {new Date().toLocaleDateString()}
                 </span>
-                <span className="text-[11px] text-border-strong">/</span>
-                <span className="text-[11px] text-foreground-subtle">{modeLabel}</span>
+                <span className="text-2xs text-border-strong">/</span>
+                <span className="text-2xs text-foreground-subtle">{modeLabel}</span>
               </div>
 
               <div className="flex items-center gap-2">
-                <span className="text-[11px] text-foreground-subtle">
+                <span className="text-2xs text-foreground-subtle">
                   Analysis confidence
                 </span>
                 <div className="h-0.5 w-16 overflow-hidden rounded-full bg-border-subtle sm:w-20">
@@ -232,13 +243,13 @@ export function ScanResultPanel({
                     className="h-full rounded-full transition-all duration-500 ease-out"
                     style={{
                       width: `${Math.min(100, Math.max(0, Math.round((result.parsed.confidence ?? 0) * 100)))}%`,
-                      background: getRiskAccentColor(result.parsed.risk_level),
+                      background: getRiskAccentColor(displayRiskLevel),
                     }}
                   />
                 </div>
                 <span
-                  className="text-[11px] font-medium"
-                  style={{ color: getRiskAccentColor(result.parsed.risk_level) }}
+                  className="text-2xs font-medium"
+                  style={{ color: getRiskAccentColor(displayRiskLevel) }}
                 >
                   {formatPercent(result.parsed.confidence)}
                 </span>
@@ -255,8 +266,8 @@ export function ScanResultPanel({
 
 function EmptyState() {
   return (
-    <div className="flex flex-col items-center justify-center rounded-xl border border-border-card bg-background-elevated px-6 py-12 shadow-[var(--shadow-elevation-low)]">
-      <span className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-surface">
+    <div className="flex flex-col items-center justify-center rounded-xl bg-background-elevated px-6 py-12">
+      <span className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-surface-secondary">
         <ShieldCheck size={20} className="text-foreground-muted" />
       </span>
       <p className="text-[13px] font-medium text-foreground-muted">No scan result yet</p>
@@ -264,15 +275,42 @@ function EmptyState() {
   )
 }
 
-function ErrorState({ error }: { error: string }) {
+function ErrorState({ error, onRetry }: { error: string; onRetry?: () => void }) {
+  const isRateLimit = error.includes("Too many scans")
+
   return (
-    <div className="rounded-xl border border-risk-high-border bg-risk-high-dim p-6 shadow-[var(--shadow-elevation-low)]">
-      <p className="mb-1.5 text-xs font-medium tracking-wide text-risk-high">
-        Error
-      </p>
-      <p className="text-[13px] leading-relaxed text-foreground-secondary">
+    <div
+      className={`rounded-xl border p-6 ${
+        isRateLimit
+          ? "border-warning-border bg-warning-dim"
+          : "border-risk-high-border bg-risk-high-dim"
+      }`}
+    >
+      <div className="mb-3 flex items-center gap-2">
+        {isRateLimit ? (
+          <ClockCounterClockwise size={16} weight="fill" className="text-warning" />
+        ) : (
+          <WarningCircle size={16} weight="fill" className="text-risk-high" />
+        )}
+        <p
+          className={`text-xs font-medium tracking-wide ${
+            isRateLimit ? "text-warning" : "text-risk-high"
+          }`}
+        >
+          {isRateLimit ? "Too many scans" : "Scan didn't go through"}
+        </p>
+      </div>
+      <p className="text-sm leading-relaxed text-foreground-secondary">
         {error}
       </p>
+      {isRateLimit && onRetry && (
+        <button
+          onClick={onRetry}
+          className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-warning/15 px-3 py-1.5 text-xs font-medium text-warning transition-colors hover:bg-warning/25"
+        >
+          Try again now
+        </button>
+      )}
     </div>
   )
 }

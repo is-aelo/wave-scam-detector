@@ -40,10 +40,19 @@ export function LinkScanForm({
   const [attachmentName, setAttachmentName] = useState("")
 
   return (
-    <form onSubmit={onSubmit} className="rounded-xl border border-border-card bg-background-elevated shadow-[var(--shadow-elevation-mid)]">
+    <form
+      onSubmit={onSubmit}
+      onKeyDown={(e) => {
+        if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+          e.preventDefault()
+          e.currentTarget.requestSubmit()
+        }
+      }}
+      className="rounded-xl border border-border-card bg-background-elevated shadow-[var(--shadow-elevation-mid)]"
+    >
       <div className="space-y-4 p-5 sm:p-6">
         <div>
-          <FieldLabel htmlFor="url-text" className="mb-2 text-[13px] font-semibold">
+          <FieldLabel htmlFor="url-text" className="mb-2 text-2sm font-semibold">
             URL to inspect
           </FieldLabel>
           <Input
@@ -51,17 +60,18 @@ export function LinkScanForm({
             type="url"
             value={urlText}
             onChange={(e) => onUrlTextChange(e.target.value)}
+            autoFocus
             placeholder="https://example.com/login"
-            className="h-11 w-full rounded-lg border-border bg-surface px-3 font-mono text-[14px] shadow-none placeholder:text-foreground-subtle hover:border-border-strong focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/10"
+            className="h-11 w-full rounded-lg border-border bg-surface px-3 font-mono text-sm shadow-none placeholder:text-foreground-subtle hover:border-border-strong focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/10"
           />
-          <p className="mt-2 text-[11px] text-foreground-subtle">
+          <p className="mt-2 text-2xs text-foreground-subtle">
             Full URL including https://. Shortened links like bit.ly are supported.
           </p>
         </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
-            <FieldLabel htmlFor="url-source" className="mb-1.5 text-[12px] font-medium text-foreground-secondary">
+            <FieldLabel htmlFor="url-source" className="mb-1.5 text-xs font-medium text-foreground-secondary">
               Where you got it
             </FieldLabel>
             <Input
@@ -69,11 +79,11 @@ export function LinkScanForm({
               value={urlSource}
               onChange={(e) => onUrlSourceChange(e.target.value)}
               placeholder="e.g. Sent via Facebook DM"
-              className="h-9 rounded-lg border-border bg-surface px-3 text-[13px] shadow-none placeholder:text-foreground-subtle hover:border-border-strong focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/10"
+              className="h-9 rounded-lg border-border bg-surface px-3 text-2sm shadow-none placeholder:text-foreground-subtle hover:border-border-strong focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/10"
             />
           </div>
           <div>
-            <FieldLabel htmlFor="url-context" className="mb-1.5 text-[12px] font-medium text-foreground-secondary">
+            <FieldLabel htmlFor="url-context" className="mb-1.5 text-xs font-medium text-foreground-secondary">
               Why it seems suspicious
             </FieldLabel>
             <Input
@@ -81,13 +91,13 @@ export function LinkScanForm({
               value={urlContext}
               onChange={(e) => onUrlContextChange(e.target.value)}
               placeholder="e.g. Asked me to log in urgently"
-              className="h-9 rounded-lg border-border bg-surface px-3 text-[13px] shadow-none placeholder:text-foreground-subtle hover:border-border-strong focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/10"
+              className="h-9 rounded-lg border-border bg-surface px-3 text-2sm shadow-none placeholder:text-foreground-subtle hover:border-border-strong focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/10"
             />
           </div>
         </div>
 
         <div>
-          <FieldLabel htmlFor="url-evidence" className="mb-1.5 text-[12px] font-medium text-foreground-secondary">
+          <FieldLabel htmlFor="url-evidence" className="mb-1.5 text-xs font-medium text-foreground-secondary">
             Additional context <span className="text-foreground-subtle">(optional)</span>
           </FieldLabel>
           <Input
@@ -95,25 +105,25 @@ export function LinkScanForm({
             value={urlEvidence}
             onChange={(e) => onUrlEvidenceChange(e.target.value)}
             placeholder="Anything else that seems off?"
-            className="h-9 rounded-lg border-border bg-surface px-3 text-[13px] shadow-none placeholder:text-foreground-subtle hover:border-border-strong focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/10"
+            className="h-9 rounded-lg border-border bg-surface px-3 text-2sm shadow-none placeholder:text-foreground-subtle hover:border-border-strong focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/10"
           />
         </div>
 
         <div>
-          <FieldLabel htmlFor="url-attachment" className="mb-1.5 text-[12px] font-medium text-foreground-secondary">
+          <FieldLabel htmlFor="url-attachment" className="mb-1.5 text-xs font-medium text-foreground-secondary">
             Screenshot <span className="text-foreground-subtle">(optional)</span>
           </FieldLabel>
           <Label
             htmlFor="url-attachment"
-            className="flex cursor-pointer items-center justify-between gap-3 rounded-lg border border-dashed border-border bg-surface px-3 py-2.5 text-[13px] text-foreground-muted transition-colors hover:border-border-strong hover:bg-surface-raised"
+            className="flex cursor-pointer items-center justify-between gap-3 rounded-lg border border-dashed border-border bg-surface px-3 py-2.5 text-2sm text-foreground-muted transition-colors hover:border-border-strong hover:bg-surface-raised"
           >
             <span className="flex min-w-0 items-center gap-2">
               <Image size={15} className="shrink-0 text-foreground-muted" />
-              <span className="truncate text-[13px] text-foreground-muted">
+              <span className="truncate text-2sm text-foreground-muted">
                 {attachmentName || "Attach image evidence"}
               </span>
             </span>
-            <span className="shrink-0 text-[10px] font-medium uppercase tracking-wider text-foreground-subtle">
+            <span className="shrink-0 text-2xs font-medium uppercase tracking-wider text-foreground-subtle">
               PNG / JPG
             </span>
           </Label>
@@ -128,14 +138,14 @@ export function LinkScanForm({
       </div>
 
       <div className="flex flex-col items-start justify-between gap-3 border-t border-border px-5 py-3.5 sm:flex-row sm:items-center sm:px-6">
-        <span className="flex items-center gap-1.5 text-[11px] text-foreground-subtle">
+        <span className="flex items-center gap-1.5 text-2xs text-foreground-subtle">
           <LockKey size={12} />
           Link data is checked in real time
         </span>
         <Button
           type="submit"
           disabled={loading || !urlText.trim()}
-          className="h-9 w-full rounded-lg px-5 text-[13px] sm:w-auto"
+          className="h-9 w-full rounded-lg px-5 text-2sm sm:w-auto"
         >
           <PaperPlaneTilt size={13} weight="fill" />
           {loading ? "Checking..." : "Analyze URL"}

@@ -106,16 +106,24 @@ function ScanPage() {
     const minDelay = sleep(2200)
     const scanPromise = fetchScan(payload)
     const response = await scanPromise
-    await minDelay
 
     window.clearInterval(timer)
+
+    if (!response.ok) {
+      setLoading(false)
+      const id = setResult(response, mode)
+      router.push(`/scan/result?id=${id}`)
+      return
+    }
+
+    await minDelay
     setLoadingStepIndex(loadingSteps.length - 1)
     setLoadingProgressValue(100)
     setLoadingStatus("Analysis complete - loading result")
 
     await sleep(250)
-    setResult(response, mode)
-    router.push("/scan/result")
+    const id = setResult(response, mode)
+    router.push(`/scan/result?id=${id}`)
   }
 
   async function handleMessageSubmit(event: FormEvent<HTMLFormElement>) {
@@ -168,7 +176,7 @@ function ScanPage() {
   return (
     <>
       <ScannerNav />
-      <main className="min-h-screen text-foreground [background:var(--gradient-page)]">
+      <main className="min-h-screen text-foreground bg-background animate-page-enter">
         {loading ? (
           <ScanLoadingTerminal
             commandLabel={loadingCommand}
@@ -183,7 +191,7 @@ function ScanPage() {
               <h2 className="mb-1.5 text-xl font-bold tracking-tight text-foreground sm:text-[22px]">
                 Run a scan
               </h2>
-              <p className="max-w-lg text-[13px] leading-relaxed text-foreground-muted">
+              <p className="max-w-lg text-2sm leading-relaxed text-foreground-muted">
                 Paste a message or URL. The more context you provide, the better the result.
               </p>
             </div>
@@ -221,7 +229,7 @@ function ScanPage() {
 
               <aside className="hidden lg:block">
                 <div className="sticky top-24 rounded-xl border border-border-card bg-background-elevated p-5 shadow-[var(--shadow-elevation-mid)]">
-                  <h3 className="mb-4 text-[11px] font-semibold uppercase tracking-wider text-foreground-subtle">
+                  <h3 className="mb-4 text-2xs font-semibold uppercase tracking-wider text-foreground-subtle">
                     Tips for better results
                   </h3>
                   <ul className="space-y-4">

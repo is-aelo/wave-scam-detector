@@ -1,5 +1,7 @@
 "use client"
 
+import { useCallback, useEffect, useRef, useState } from "react"
+
 import {
   ArrowRight,
   ChatCenteredText,
@@ -7,7 +9,6 @@ import {
   LinkSimple,
   Lightning,
   ShieldCheck,
-  Sparkle,
 } from "@phosphor-icons/react"
 
 import { Button } from "@/components/ui/button"
@@ -61,31 +62,43 @@ export function LandingScreen({
   onCheckMessage,
   onCheckUrl,
 }: LandingScreenProps) {
+  const sectionRef = useRef<HTMLElement>(null)
+  const [mouse, setMouse] = useState({ x: 0.5, y: 0.15 })
+  const [canTrack, setCanTrack] = useState(false)
+
+  useEffect(() => {
+    const mq = window.matchMedia("(pointer: fine) and (min-width: 768px)")
+    setCanTrack(mq.matches)
+    const onChange = (e: MediaQueryListEvent) => setCanTrack(e.matches)
+    mq.addEventListener("change", onChange)
+    return () => mq.removeEventListener("change", onChange)
+  }, [])
+
+  const handleMouse = useCallback((e: React.MouseEvent) => {
+    if (!sectionRef.current) return
+    const rect = sectionRef.current.getBoundingClientRect()
+    setMouse({
+      x: (e.clientX - rect.left) / rect.width,
+      y: (e.clientY - rect.top) / rect.height,
+    })
+  }, [])
+
   return (
-    <section className="relative mx-auto w-full max-w-5xl px-4 pb-12 pt-10 sm:px-6 sm:pt-16 lg:px-8">
-      {/* Decorative metallic accents */}
-      <Sparkle
-        size={20}
-        weight="fill"
-        className="absolute right-[15%] top-16 text-accent-chrome/25 sm:right-[18%] sm:top-20"
-      />
-      <Sparkle
-        size={14}
-        weight="fill"
-        className="absolute left-[12%] top-28 text-accent-chrome/20 sm:left-[10%]"
-      />
-      <Sparkle
-        size={24}
-        weight="fill"
-        className="absolute bottom-32 right-[8%] text-accent-chrome/15 hidden sm:block"
-      />
+    <section
+      ref={sectionRef}
+      onMouseMove={canTrack ? handleMouse : undefined}
+      className="relative mx-auto w-full max-w-5xl px-4 pb-12 pt-10 sm:px-6 sm:pt-16 lg:px-8"
+    >
+      {canTrack && (
+        <div
+          className="pointer-events-none absolute inset-0 -z-10"
+          style={{
+            background: `radial-gradient(600px circle at ${mouse.x * 100}% ${mouse.y * 100}%, rgba(74,106,138,0.08), transparent 50%)`,
+          }}
+        />
+      )}
 
       <div className="mx-auto max-w-2xl text-center">
-        <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-accent-brand-border bg-accent-brand-dim px-3 py-1 text-[11px] font-medium uppercase tracking-wider text-accent-brand">
-          <span className="h-1.5 w-1.5 rounded-full bg-accent-brand" />
-          Scam risk assistant
-        </div>
-
         <h1 className="text-balance text-3xl font-bold leading-tight tracking-tight text-foreground sm:text-4xl lg:text-5xl">
           Know if it&apos;s a scam before you respond.
         </h1>
@@ -127,7 +140,7 @@ export function LandingScreen({
 
             return (
               <div key={item.value} className="flex items-center gap-2.5">
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-border bg-surface">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-surface-secondary">
                 <Icon size={16} className="text-foreground-muted" />
               </span>
                 <div>
@@ -151,13 +164,17 @@ export function LandingScreen({
           return (
             <article
               key={feature.title}
-              className={`rounded-xl border border-border-card bg-background-elevated shadow-[var(--shadow-elevation-mid)] ${
-                isPrimary ? "sm:col-span-2 sm:p-6" : "sm:p-5"
+              className={`rounded-xl ${
+                isPrimary
+                  ? "border border-border-card bg-background-elevated shadow-[var(--shadow-elevation-mid)] sm:col-span-2 sm:p-6"
+                  : "bg-surface-secondary sm:p-5"
               } p-5`}
             >
               <span
-                className={`mb-3 flex items-center justify-center rounded-lg border border-accent-brand-border bg-accent-brand-dim shadow-[var(--accent-chrome-glow)] ${
-                  isPrimary ? "h-9 w-9 sm:h-10 sm:w-10" : "h-8 w-8"
+                className={`mb-3 flex items-center justify-center rounded-lg ${
+                  isPrimary
+                    ? "border border-accent-brand-border bg-accent-brand-dim shadow-[var(--accent-chrome-glow)] h-9 w-9 sm:h-10 sm:w-10"
+                    : "bg-accent-brand-dim h-8 w-8"
                 }`}
               >
                 <Icon

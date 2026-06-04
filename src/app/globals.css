@@ -31,15 +31,15 @@
   --accent: var(--surface-tertiary);
   --accent-foreground: var(--foreground);
 
-  /* Primary — warm sand (grounded, natural, trustworthy) */
-  --primary: #c4a882;
-  --primary-hover: #d4ba96;
-  --primary-active: #b49870;
-  --primary-dim: rgba(196, 168, 130, 0.08);
-  --primary-dim-hover: rgba(196, 168, 130, 0.14);
-  --primary-border: rgba(196, 168, 130, 0.2);
-  --primary-glow: rgba(196, 168, 130, 0.1);
-  --primary-foreground: #070a08;
+  /* Primary — charcoal navy (muted steel, authoritative) */
+  --primary: #4a6a8a;
+  --primary-hover: #5a7a9a;
+  --primary-active: #3a5a7a;
+  --primary-dim: rgba(74, 106, 138, 0.08);
+  --primary-dim-hover: rgba(74, 106, 138, 0.14);
+  --primary-border: rgba(74, 106, 138, 0.2);
+  --primary-glow: rgba(74, 106, 138, 0.1);
+  --primary-foreground: #ffffff;
 
   /* Secondary — muted beige */
   --secondary: #b8aa98;
@@ -92,14 +92,6 @@
   --glow-suspicious: rgba(251, 146, 60, 0.15);
   --glow-high: rgba(239, 68, 68, 0.2);
 
-  /* Gradients */
-  --gradient-page:
-    radial-gradient(ellipse at 50% -10%, rgba(196, 168, 130, 0.1), transparent 34rem),
-    linear-gradient(180deg, rgba(11, 15, 13, 0.96), var(--background) 28rem);
-  --gradient-surface:
-    linear-gradient(180deg, rgba(24, 30, 27, 0.84), rgba(13, 18, 16, 0.92));
-  --grid-size: 48px;
-
   /* Accent — muted silver-green */
   --accent-chrome: #8a9088;
   --accent-chrome-dim: rgba(138, 144, 136, 0.06);
@@ -121,7 +113,9 @@
   --shadow-risk-safe: 0 16px 48px rgba(34, 197, 94, 0.1);
 
   /* Typography scale */
+  --text-2xs: 0.6875rem;
   --text-xs: 0.75rem;
+  --text-2sm: 0.8125rem;
   --text-sm: 0.875rem;
   --text-base: 1rem;
   --text-lg: 1.125rem;
@@ -238,6 +232,9 @@
 
   --font-sans: var(--font-body);
   --font-mono: var(--font-code);
+
+  --text-2xs: 0.6875rem;
+  --text-2sm: 0.8125rem;
 }
 
 html {
@@ -246,12 +243,7 @@ html {
 
 body {
   min-height: 100%;
-  background:
-    /* Subtle grid overlay */
-    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
-    var(--background);
-  background-size: var(--grid-size) var(--grid-size), var(--grid-size) var(--grid-size), auto;
+  background: var(--background);
   color: var(--foreground);
   font-family: var(--font-body);
   font-size: var(--text-base);

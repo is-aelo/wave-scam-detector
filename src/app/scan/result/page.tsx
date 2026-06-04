@@ -1,28 +1,44 @@
 "use client"
 
-import { useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { Suspense, useEffect, useRef } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 
 import { ScanResultPanel } from "@/components/wave-scanner/scan-result-panel"
 import { ScannerNav } from "@/components/wave-scanner/scanner-nav"
 import { useScanStore } from "@/lib/scan-store"
 
-export default function ScanResultPage() {
+function ScanResultContent() {
   const router = useRouter()
-  const { result, mode, clearResult } = useScanStore()
+  const searchParams = useSearchParams()
+  const id = searchParams.get("id")
+  const { result, mode, setResult, loadById, clearResult } = useScanStore()
+  const hydrated = useRef(false)
 
   useEffect(() => {
-    if (!result) {
+    if (hydrated.current) return
+
+    if (id) {
+      const saved = loadById(id)
+      if (saved) {
+        setResult(saved.result, saved.mode)
+      }
+    }
+
+    hydrated.current = true
+  }, [id, loadById, setResult])
+
+  useEffect(() => {
+    if (hydrated.current && !result && !id) {
       router.replace("/scan")
     }
-  }, [result, router])
+  }, [result, id, router])
 
   if (!result) return null
 
   return (
     <>
       <ScannerNav />
-      <main className="min-h-screen text-foreground [background:var(--gradient-page)]">
+      <main className="min-h-screen text-foreground bg-background animate-page-enter">
         <ScanResultPanel
           result={result}
           mode={mode}
@@ -34,5 +50,13 @@ export default function ScanResultPage() {
         />
       </main>
     </>
+  )
+}
+
+export default function ScanResultPage() {
+  return (
+    <Suspense fallback={null}>
+      <ScanResultContent />
+    </Suspense>
   )
 }

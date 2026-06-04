@@ -10,7 +10,7 @@ export default function Home() {
   return (
     <>
       <ScannerNav />
-      <main className="min-h-screen text-foreground [background:var(--gradient-page)]">
+      <main className="min-h-screen text-foreground bg-background animate-page-enter">
         <LandingScreen
           onCheckMessage={() => router.push("/scan?mode=message")}
           onCheckUrl={() => router.push("/scan?mode=link")}

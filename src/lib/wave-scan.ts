@@ -113,7 +113,9 @@ ${context ?? "None"}
 Optional Evidence:
 ${evidence ?? "None"}
 
-Only set mode to "REJECTED" if the input is a pure greeting, casual chit-chat, or completely unrelated to any scam or fraud scenario (e.g. "Hi", "Hello", "How are you?", "What's the weather?"). For REJECTED inputs, fill remaining fields with reasonable defaults (e.g. risk_level: "Safe", risk_score: 0, confidence: 0, summary explaining the input was not a scam scenario). Do not use REJECTED for any input that could be scam or fraud related, even if it appears safe.
+Only set mode to "REJECTED" if the input is a pure greeting, casual chit-chat, or completely unrelated to any scam or fraud scenario (e.g. "Hi", "Hello", "How are you?", "What's the weather?"). For REJECTED inputs, assign appropriate values for all fields reflecting that no scam analysis was performed (e.g. risk_level indicating safety, risk_score and confidence at near-zero, and a summary explaining the input was not a scam scenario). Do not use REJECTED for any input that could be scam or fraud related, even if it appears safe.
+
+Keep summary, what_could_happen, and recommendation concise — no more than 2 sentences each.
 
 You MUST always return valid JSON that matches the schema exactly — never return plain text.`;
 }
@@ -135,7 +137,7 @@ function mockDelay(): Promise<void> {
 function mockResult(inputText: string, url?: string) {
   const text = inputText.toLowerCase();
 
-  if (text.includes("hello") || text.includes("hi ") || text.includes("how are you") || text.includes("what is the weather") || text.length < 10) {
+  if (text.includes("hello") || text.includes("hi ") || text.includes("how are you") || text.includes("what is the weather")) {
     return {
       mode: "REJECTED",
       language_style: "English",
@@ -259,7 +261,7 @@ export async function runWaveScan({
     config: {
       temperature: 0.2,
       topP: 0.9,
-      maxOutputTokens: 1024,
+      maxOutputTokens: 8192,
       responseMimeType: "application/json",
       responseSchema,
       safetySettings: [
@@ -283,36 +285,31 @@ export async function runWaveScan({
     },
   });
 
-  const rawText = response.text ?? "";
+  const rawText = response.text;
 
-  let parsed: unknown = null;
-  if (rawText) {
+  let rawJson: string;
+  let parsed: unknown;
+
+  if (typeof rawText === "string") {
+    rawJson = rawText;
     try {
       parsed = JSON.parse(rawText);
     } catch {
-      parsed = null;
+      throw new Error("The AI returned an unreadable response. Please try again.");
     }
-  }
-
-  if (!parsed || typeof parsed !== "object") {
-    parsed = {
-      mode: "REJECTED",
-      language_style: "English",
-      tone: "Casual",
-      summary: rawText || "No response from backend.",
-      risk_score: 0,
-      risk_level: "Safe",
-      confidence: 0,
-      scam_type: "Unknown",
-      red_flags: [],
-      what_could_happen: "N/A",
-      recommendation: "N/A",
-    };
+    if (typeof parsed !== "object" || parsed === null) {
+      throw new Error("The AI response was not in the expected format.");
+    }
+  } else if (rawText && typeof rawText === "object") {
+    parsed = rawText;
+    rawJson = JSON.stringify(rawText);
+  } else {
+    throw new Error("The AI returned an empty response. Please try again.");
   }
 
   return {
     ok: true,
-    rawText,
+    rawText: rawJson,
     parsed,
   };
 }

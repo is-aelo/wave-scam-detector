@@ -56,6 +56,16 @@ Use this map first to avoid rediscovering the app structure.
 - Before changing framework-sensitive code, read the relevant guide in `node_modules/next/dist/docs/`.
 - Heed any deprecation notices or repo-specific conventions over general Next.js assumptions.
 
+## Deploying to Vercel
+
+Rate limiting uses Upstash Redis (serverless, HTTP-based). To enable it on Vercel:
+
+1. **Vercel KV (recommended):** Go to your Vercel project dashboard → Storage → Create KV Database. Vercel auto-injects `KV_REST_API_URL` and `KV_REST_API_TOKEN` — no code changes needed.
+2. **Standalone Upstash:** Set `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` in your Vercel environment variables.
+3. **Done** — the limiter auto-detects either set of env vars and uses Redis. If neither is present, it falls back to in-memory (useful for local dev).
+
+Default limits: **1 request per minute**, **3 per day**. Override with `RATE_LIMIT_PER_MIN` / `RATE_LIMIT_PER_DAY` env vars.
+
 ## Agent Behavior
 
 - Make changes that fit the current architecture unless the user asks for a redesign.
