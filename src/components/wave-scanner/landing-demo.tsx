@@ -1,17 +1,17 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
-import { ArrowUp, CircleNotch } from "@phosphor-icons/react"
+import { PaperPlaneTilt, ShieldCheck, WarningCircle } from "@phosphor-icons/react"
 
 const SAMPLE_MESSAGE =
-  "Hi po, hiring na kami. Work from home setup. Kailangan lang magbayad ng P1,500 para sa training kit."
+  "Hi! We're hiring for remote data entry positions. $3,500/month salary. Just pay a $50 refundable deposit for your equipment and training kit. Contact us on Telegram."
 
-const scanRows = [
-  ["status", "complete", "text-safe"],
-  ["risk_score", "74 / 100", "text-warning"],
-  ["risk_level", "SUSPICIOUS", "text-warning"],
-  ["scam_type", "advance-fee job", "text-foreground-secondary"],
-  ["confidence", "83%", "text-primary"],
+const signalRows = [
+  ["Pressure tactic", "Urgency to pay deposit", "text-warning"],
+  ["Suspicious pattern", "Upfront fee request", "text-warning"],
+  ["Employment scam", "Advance-fee scheme", "text-foreground-secondary"],
+  ["Risk score", "74 / 100", "text-warning"],
+  ["Confidence", "High (83%)", "text-primary"],
 ]
 
 type DemoPhase = "typing" | "sent" | "analyzing" | "result"
@@ -38,7 +38,7 @@ export function LandingDemo() {
 
           return current + 1
         })
-      }, 24)
+      }, 22)
 
       return () => window.clearInterval(interval)
     }
@@ -55,15 +55,15 @@ export function LandingDemo() {
     if (phase === "analyzing") {
       const interval = window.setInterval(() => {
         setScanIndex((current) => {
-          if (current >= scanRows.length) {
+          if (current >= signalRows.length) {
             window.clearInterval(interval)
             window.setTimeout(() => setPhase("result"), 500)
-            return scanRows.length
+            return signalRows.length
           }
 
           return current + 1
         })
-      }, 360)
+      }, 380)
 
       return () => window.clearInterval(interval)
     }
@@ -72,117 +72,139 @@ export function LandingDemo() {
       setTypedCount(0)
       setScanIndex(0)
       setPhase("typing")
-    }, 3400)
+    }, 4500)
 
     return () => window.clearTimeout(timeout)
   }, [phase])
 
-  const showTerminal = phase === "analyzing" || phase === "result"
+  const showAnalysis = phase === "analyzing" || phase === "result"
   const showResult = phase === "result"
 
   return (
     <div className="relative mx-auto w-full max-w-[580px]">
-      <div className="absolute -inset-6 rounded-[28px] bg-primary/10 blur-3xl" />
-      <div className="relative overflow-hidden rounded-xl border border-border-subtle bg-card shadow-[var(--shadow-glow)]">
+      <div className="relative overflow-hidden rounded-xl border border-border bg-card shadow-[var(--shadow-glow)]">
         <div className="flex items-center gap-3 border-b border-border-subtle bg-surface-secondary px-4 py-3">
           <div className="flex gap-1.5">
             <span className="h-2.5 w-2.5 rounded-full bg-danger/70" />
             <span className="h-2.5 w-2.5 rounded-full bg-warning/70" />
             <span className="h-2.5 w-2.5 rounded-full bg-safe/70" />
           </div>
-          <p className="flex-1 text-center font-mono text-[11px] text-foreground-subtle">
-            wave - scan result
+          <p className="flex-1 text-center text-xs text-foreground-muted">
+            Wave Scan
           </p>
+          <ShieldCheck size={13} weight="fill" className="text-primary" />
         </div>
 
         <div className="space-y-4 p-4">
-          <div className="rounded-lg border border-border-subtle bg-background-elevated p-3">
-            <div className="mb-2 flex items-center justify-between">
+          <div className="rounded-xl border border-border-subtle bg-background-elevated p-3.5">
+            <div className="mb-2.5 flex items-center justify-between">
               <span className="text-xs font-medium text-foreground-muted">
-                Message
+                Message to analyze
               </span>
-              <span className="font-mono text-[10px] text-foreground-subtle">
+              <span className="rounded-md border border-border-subtle bg-surface px-2 py-0.5 text-[10px] text-foreground-subtle">
                 Messenger
               </span>
             </div>
 
-            <div className="min-h-20 rounded-lg bg-surface p-3 text-sm leading-6 text-foreground-secondary">
-              {typedMessage}
+            <div className="min-h-[72px] rounded-lg bg-surface p-3 text-sm leading-6 text-foreground-secondary">
+              {typedMessage || (
+                <span className="text-foreground-subtle/50">Typing a message...</span>
+              )}
               {phase === "typing" ? (
-                <span className="ml-0.5 inline-block h-4 w-1 animate-pulse rounded-sm bg-primary align-middle" />
+                <span className="ml-0.5 inline-block h-4 w-0.5 animate-pulse rounded-sm bg-primary align-middle" />
               ) : null}
             </div>
 
             <div className="mt-3 flex items-center gap-2">
-              <div className="h-8 flex-1 rounded-lg border border-border-subtle bg-surface" />
+              <div className="h-9 flex-1 rounded-lg border border-border-subtle bg-surface px-3 text-xs text-foreground-subtle flex items-center">
+                {phase === "typing" ? "Paste a suspicious message..." : SAMPLE_MESSAGE.length > 0 ? `${SAMPLE_MESSAGE.length} characters` : ""}
+              </div>
               <div
-                className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors ${
+                className={`flex h-9 w-9 items-center justify-center rounded-lg transition-all duration-300 ${
                   phase === "typing"
                     ? "bg-surface-tertiary text-foreground-subtle"
-                    : "bg-primary text-primary-foreground"
+                    : "bg-primary text-primary-foreground shadow-[0_0_12px_rgba(196,168,130,0.4)]"
                 }`}
               >
-                <ArrowUp size={15} weight="bold" />
+                <PaperPlaneTilt size={15} weight="fill" />
               </div>
             </div>
           </div>
 
           <div
-            className={`space-y-3 rounded-lg border border-border-subtle bg-background-elevated p-3 transition-opacity duration-300 ${
-              showTerminal ? "opacity-100" : "opacity-45"
+            className={`rounded-xl border border-border-subtle bg-background-elevated p-3.5 transition-all duration-500 ${
+              showAnalysis ? "opacity-100" : "opacity-50"
             }`}
           >
-            <div className="flex min-w-0 items-center gap-2 font-mono text-[11px]">
-              <span className="text-primary">~</span>
-              <span className="text-primary">&gt;</span>
-              <span className="text-foreground">wave scan</span>
-              <span className="truncate text-foreground-muted">
-                &quot;Hi po, hiring na kami...&quot;
+            <div className="mb-3 flex items-center gap-2 border-b border-border-subtle pb-2.5">
+              <ShieldCheck size={14} weight="fill" className="text-primary" />
+              <span className="text-xs font-medium text-foreground">
+                Analysis results
               </span>
-              <span className="hidden text-warning sm:inline">
-                --mode job-seeker
-              </span>
+              {phase === "analyzing" && (
+                <span className="ml-auto flex items-center gap-1.5 text-[11px] text-foreground-muted">
+                  <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-primary" />
+                  Scanning signals...
+                </span>
+              )}
+              {showResult && (
+                <span className="ml-auto text-[11px] text-safe">Complete</span>
+              )}
             </div>
 
-            {showTerminal ? (
-              <div className="space-y-1">
-                {scanRows.map(([key, value, tone], index) => (
+            {showAnalysis ? (
+              <div className="space-y-1.5">
+                {signalRows.map(([label, value, tone], index) => (
                   <div
-                    key={key}
-                    className={`grid grid-cols-[88px,1fr] gap-3 font-mono text-[11px] transition-opacity ${
-                      index < scanIndex ? "opacity-100" : "opacity-25"
+                    key={label}
+                    className={`grid grid-cols-[120px,1fr] gap-2 text-xs transition-all duration-300 ${
+                      index < scanIndex
+                        ? "translate-x-0 opacity-100"
+                        : "-translate-x-2 opacity-0"
                     }`}
+                    style={{
+                      transitionDelay: index < scanIndex ? `${index * 40}ms` : "0ms",
+                    }}
                   >
-                    <span className="text-foreground-subtle">{key}</span>
-                    <span className={tone}>{value}</span>
+                    <span className="text-foreground-subtle">{label}</span>
+                    <span className={`font-medium ${tone}`}>{value}</span>
                   </div>
                 ))}
               </div>
             ) : (
               <div className="flex items-center gap-2 text-xs text-foreground-subtle">
-                <CircleNotch size={14} className="animate-spin" />
-                Waiting for message
+                <div className="flex gap-1">
+                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-foreground-muted/40" style={{ animationDelay: "0ms" }} />
+                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-foreground-muted/40" style={{ animationDelay: "200ms" }} />
+                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-foreground-muted/40" style={{ animationDelay: "400ms" }} />
+                </div>
+                <span>Waiting for message</span>
               </div>
             )}
 
             <div
-              className={`rounded-r-md border border-warning-border border-l-warning bg-warning-dim p-3 transition-all duration-300 ${
+              className={`mt-3 overflow-hidden rounded-lg border border-warning-border bg-warning-dim transition-all duration-500 ease-out ${
                 showResult
-                  ? "translate-y-0 opacity-100"
-                  : "translate-y-1 opacity-0"
+                  ? "max-h-40 translate-y-0 opacity-100"
+                  : "max-h-0 translate-y-1 opacity-0"
               }`}
             >
-              <p className="font-mono text-[10px] uppercase tracking-wider text-warning">
-                Warn - suspicious
-              </p>
-              <p className="mt-1 text-sm font-medium text-foreground">
-                Likely a job scam. Do not proceed.
-              </p>
-              <p className="mt-1 text-xs leading-5 text-foreground-muted">
-                Multiple patterns match advance-fee scams. Avoid sharing
-                personal info or paying fees.
-              </p>
+              <div className="p-3.5">
+                <div className="mb-2 flex items-center gap-1.5">
+                  <WarningCircle size={14} weight="fill" className="text-warning" />
+                  <span className="text-[10px] font-medium uppercase tracking-wider text-warning">
+                    Warn — Suspicious
+                  </span>
+                </div>
+                <p className="text-sm font-medium text-foreground">
+                  Likely an advance-fee job scam
+                </p>
+                <p className="mt-1 text-xs leading-5 text-foreground-muted">
+                  Multiple red flags detected: upfront payment request, unrealistic salary, and pressure tactics. Do not send money or share personal information.
+                </p>
+              </div>
             </div>
+
           </div>
         </div>
       </div>

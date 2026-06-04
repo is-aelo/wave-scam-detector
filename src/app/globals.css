@@ -3,24 +3,25 @@
   color-scheme: dark;
   --radius: 0.5rem;
 
-  /* Backgrounds */
-  --background: #030711;
-  --background-elevated: #070c18;
-  --surface: #0b1220;
-  --surface-secondary: #111827;
-  --surface-tertiary: #162033;
-  --surface-raised: #101a2c;
+  /* Backgrounds — deep pine (Forest foundation) */
+  --background: #070a08;
+  --background-elevated: #0b0f0d;
+  --surface: #0d1210;
+  --surface-secondary: #121715;
+  --surface-tertiary: #181e1b;
+  --surface-raised: #101513;
 
-  /* Borders */
-  --border: rgba(255, 255, 255, 0.08);
-  --border-subtle: rgba(255, 255, 255, 0.05);
-  --border-strong: rgba(255, 255, 255, 0.14);
+  /* Borders — subtle white */
+  --border: rgba(255, 255, 255, 0.06);
+  --border-subtle: rgba(255, 255, 255, 0.03);
+  --border-strong: rgba(255, 255, 255, 0.1);
+  --border-card: rgba(255, 255, 255, 0.08);
 
-  /* Typography */
-  --foreground: #f7f9fc;
-  --foreground-secondary: #c8d0dd;
-  --foreground-muted: #98a3b5;
-  --foreground-subtle: #6f7a8e;
+  /* Typography — warm off-whites */
+  --foreground: #f5f4f0;
+  --foreground-secondary: #d4d0c8;
+  --foreground-muted: #a8a39a;
+  --foreground-subtle: #757068;
   --card: var(--surface);
   --card-foreground: var(--foreground);
   --popover: var(--background-elevated);
@@ -29,17 +30,29 @@
   --muted-foreground: var(--foreground-muted);
   --accent: var(--surface-tertiary);
   --accent-foreground: var(--foreground);
-  --primary: #4c8dff;
-  --primary-hover: #6ea3ff;
-  --primary-active: #2f74f5;
-  --primary-dim: rgba(76, 141, 255, 0.1);
-  --primary-dim-hover: rgba(76, 141, 255, 0.16);
-  --primary-border: rgba(76, 141, 255, 0.22);
-  --primary-glow: rgba(30, 70, 200, 0.18);
-  --primary-foreground: var(--foreground);
-  --secondary: #60a5fa;
-  --secondary-hover: #93c5fd;
+
+  /* Primary — warm sand (grounded, natural, trustworthy) */
+  --primary: #c4a882;
+  --primary-hover: #d4ba96;
+  --primary-active: #b49870;
+  --primary-dim: rgba(196, 168, 130, 0.08);
+  --primary-dim-hover: rgba(196, 168, 130, 0.14);
+  --primary-border: rgba(196, 168, 130, 0.2);
+  --primary-glow: rgba(196, 168, 130, 0.1);
+  --primary-foreground: #070a08;
+
+  /* Secondary — muted beige */
+  --secondary: #b8aa98;
+  --secondary-hover: #c8baa8;
   --secondary-foreground: var(--foreground);
+
+  /* Accent — muted pine (natural counterpoint to sand) */
+  --accent-brand: #5a7d6c;
+  --accent-brand-dim: rgba(90, 125, 108, 0.08);
+  --accent-brand-border: rgba(90, 125, 108, 0.2);
+  --accent-brand-glow: rgba(90, 125, 108, 0.1);
+
+  /* Semantic colors */
   --safe: #22c55e;
   --safe-foreground: #ddfbe7;
   --warning: #f59e0b;
@@ -53,7 +66,7 @@
   --info: #60a5fa;
   --info-foreground: #e5f1ff;
   --input: var(--border);
-  --ring: #4c8dff;
+  --ring: var(--primary);
 
   /* Risk level specific colors */
   --risk-safe: #22c55e;
@@ -79,22 +92,35 @@
   --glow-suspicious: rgba(251, 146, 60, 0.15);
   --glow-high: rgba(239, 68, 68, 0.2);
 
+  /* Gradients */
   --gradient-page:
-    radial-gradient(circle at 50% -10%, rgba(76, 141, 255, 0.22), transparent 32rem),
-    linear-gradient(180deg, rgba(7, 12, 24, 0.94), var(--background) 34rem);
+    radial-gradient(ellipse at 50% -10%, rgba(196, 168, 130, 0.1), transparent 34rem),
+    linear-gradient(180deg, rgba(11, 15, 13, 0.96), var(--background) 28rem);
   --gradient-surface:
-    linear-gradient(180deg, rgba(22, 32, 51, 0.84), rgba(11, 18, 32, 0.92));
-  --shadow-card: 0 18px 50px rgba(0, 0, 0, 0.28);
-  --shadow-soft: 0 12px 34px rgba(0, 0, 0, 0.2);
+    linear-gradient(180deg, rgba(24, 30, 27, 0.84), rgba(13, 18, 16, 0.92));
+  --grid-size: 48px;
+
+  /* Accent — muted silver-green */
+  --accent-chrome: #8a9088;
+  --accent-chrome-dim: rgba(138, 144, 136, 0.06);
+  --accent-chrome-glow: rgba(138, 144, 136, 0.08);
+
+  /* Shadows */
+  --shadow-card: 0 20px 56px rgba(0, 0, 0, 0.45);
+  --shadow-soft: 0 14px 38px rgba(0, 0, 0, 0.35);
+  --shadow-elevation-low: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
+  --shadow-elevation-mid: 0 4px 12px rgba(0, 0, 0, 0.35), 0 2px 6px rgba(0, 0, 0, 0.2);
+  --shadow-elevation-high: 0 10px 28px rgba(0, 0, 0, 0.4), 0 4px 12px rgba(0, 0, 0, 0.25);
   --shadow-glow:
-    0 24px 80px rgba(0, 0, 0, 0.38),
-    0 0 90px var(--primary-glow);
+    0 28px 88px rgba(0, 0, 0, 0.5),
+    0 0 64px var(--primary-glow);
   --shadow-risk-high: 0 16px 48px rgba(239, 68, 68, 0.15);
   --shadow-risk-suspicious: 0 16px 48px rgba(251, 146, 60, 0.12);
   --shadow-risk-caution: 0 16px 48px rgba(245, 158, 11, 0.1);
   --shadow-risk-low: 0 16px 48px rgba(132, 204, 22, 0.1);
   --shadow-risk-safe: 0 16px 48px rgba(34, 197, 94, 0.1);
 
+  /* Typography scale */
   --text-xs: 0.75rem;
   --text-sm: 0.875rem;
   --text-base: 1rem;
@@ -111,7 +137,7 @@
   --leading-relaxed: 1.65;
   --leading-loose: 1.8;
 
-  --tracking-tight: 0em;
+  --tracking-tight: -0.02em;
   --tracking-normal: 0em;
   --tracking-wide: 0.02em;
   --tracking-wider: 0.04em;
@@ -144,6 +170,7 @@
   --color-border: var(--border);
   --color-border-subtle: var(--border-subtle);
   --color-border-strong: var(--border-strong);
+  --color-border-card: var(--border-card);
 
   --color-foreground: var(--foreground);
   --color-foreground-secondary: var(--foreground-secondary);
@@ -185,6 +212,30 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
 
+  --color-accent-brand: var(--accent-brand);
+  --color-accent-brand-dim: var(--accent-brand-dim);
+  --color-accent-brand-border: var(--accent-brand-border);
+
+  --color-accent-chrome: var(--accent-chrome);
+  --color-accent-chrome-dim: var(--accent-chrome-dim);
+  --color-accent-chrome-glow: var(--accent-chrome-glow);
+
+  --color-risk-safe: var(--risk-safe);
+  --color-risk-safe-dim: var(--risk-safe-dim);
+  --color-risk-safe-border: var(--risk-safe-border);
+  --color-risk-low: var(--risk-low);
+  --color-risk-low-dim: var(--risk-low-dim);
+  --color-risk-low-border: var(--risk-low-border);
+  --color-risk-caution: var(--risk-caution);
+  --color-risk-caution-dim: var(--risk-caution-dim);
+  --color-risk-caution-border: var(--risk-caution-border);
+  --color-risk-suspicious: var(--risk-suspicious);
+  --color-risk-suspicious-dim: var(--risk-suspicious-dim);
+  --color-risk-suspicious-border: var(--risk-suspicious-border);
+  --color-risk-high: var(--risk-high);
+  --color-risk-high-dim: var(--risk-high-dim);
+  --color-risk-high-border: var(--risk-high-border);
+
   --font-sans: var(--font-body);
   --font-mono: var(--font-code);
 }
@@ -195,7 +246,12 @@ html {
 
 body {
   min-height: 100%;
-  background: var(--background);
+  background:
+    /* Subtle grid overlay */
+    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    var(--background);
+  background-size: var(--grid-size) var(--grid-size), var(--grid-size) var(--grid-size), auto;
   color: var(--foreground);
   font-family: var(--font-body);
   font-size: var(--text-base);
@@ -220,56 +276,21 @@ pre {
   font-family: var(--font-code);
 }
 
-/* Animations */
-@keyframes count-up {
-  from {
-    --value: 0;
-  }
-  to {
-    --value: var(--target-value);
-  }
-}
+/* ── Animations ── */
 
 @keyframes fade-in-up {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
-@keyframes pulse-glow {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.8;
-  }
-}
-
-@keyframes rotate-arc {
-  from {
-    transform: rotate(-90deg);
-  }
-  to {
-    transform: rotate(270deg);
-  }
-}
-
-.animate-count-up {
-  animation: count-up 2s ease-out forwards;
+@keyframes page-enter {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .animate-fade-in-up {
@@ -280,10 +301,6 @@ pre {
   animation: fade-in 0.4s ease-out forwards;
 }
 
-.animate-pulse-glow {
-  animation: pulse-glow 2s ease-in-out infinite;
-}
-
-.animate-rotate-arc {
-  animation: rotate-arc 1.2s ease-out forwards;
+.animate-page-enter {
+  animation: page-enter 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }

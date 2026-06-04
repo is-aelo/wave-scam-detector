@@ -113,7 +113,116 @@ ${context ?? "None"}
 Optional Evidence:
 ${evidence ?? "None"}
 
-Return JSON that matches the schema exactly.`;
+Only set mode to "REJECTED" if the input is a pure greeting, casual chit-chat, or completely unrelated to any scam or fraud scenario (e.g. "Hi", "Hello", "How are you?", "What's the weather?"). For REJECTED inputs, fill remaining fields with reasonable defaults (e.g. risk_level: "Safe", risk_score: 0, confidence: 0, summary explaining the input was not a scam scenario). Do not use REJECTED for any input that could be scam or fraud related, even if it appears safe.
+
+You MUST always return valid JSON that matches the schema exactly — never return plain text.`;
+}
+
+async function runMockScan({
+  inputText,
+  url,
+}: WaveScanInput): Promise<WaveScanResult> {
+  await mockDelay();
+  const result = mockResult(inputText, url);
+  const rawText = JSON.stringify(result);
+  return { ok: true, rawText, parsed: result };
+}
+
+function mockDelay(): Promise<void> {
+  return new Promise((r) => setTimeout(r, 800 + Math.random() * 1200));
+}
+
+function mockResult(inputText: string, url?: string) {
+  const text = inputText.toLowerCase();
+
+  if (text.includes("hello") || text.includes("hi ") || text.includes("how are you") || text.includes("what is the weather") || text.length < 10) {
+    return {
+      mode: "REJECTED",
+      language_style: "English",
+      tone: "Casual",
+      summary: "This doesn't appear to be a scam-related message. Wave is designed to analyze messages and URLs for scam or fraud risk. Please share a suspicious message or link for analysis.",
+      risk_score: 0,
+      risk_level: "Safe",
+      confidence: 0,
+      scam_type: "N/A",
+      red_flags: [],
+      what_could_happen: "N/A",
+      recommendation: "No action needed — this input is outside Wave's scam-detection scope.",
+    };
+  }
+
+  if (url) {
+    const isPhishing = text.includes("bit.ly") || text.includes("tinyurl") || text.includes("login") || text.includes("secure") || text.includes("verify") || text.includes("paypal");
+    if (isPhishing) {
+      return {
+        mode: "URL_ANALYSIS",
+        language_style: "English",
+        tone: "Warning",
+        summary: "This URL exhibits strong phishing indicators. The domain uses a deceptive subdomain structure and a shortened redirect chain typical of credential harvesting campaigns.",
+        risk_score: 85,
+        risk_level: "High Risk",
+        confidence: 0.92,
+        scam_type: "Phishing Link",
+        red_flags: [
+          "Suspicious subdomain mimicking a legitimate brand",
+          "URL shortener masking the final destination",
+          "Contains security-adjacent keywords (verify, secure, login)",
+          "No HTTPS or misconfigured TLS certificate",
+        ],
+        what_could_happen: "Clicking this link could redirect to a credential harvesting page that captures your email, password, or financial details. Malware delivery through drive-by downloads is also possible.",
+        recommendation: "Do not click the link. Delete the message. If it claims to be from a service you use, navigate to that service's official website directly (not via the link) and verify.",
+      };
+    }
+    return {
+      mode: "URL_ANALYSIS",
+      language_style: "English",
+      tone: "Formal",
+      summary: "The URL appears legitimate. No phishing indicators, redirect chains, or suspicious domain patterns were detected.",
+      risk_score: 5,
+      risk_level: "Safe",
+      confidence: 0.87,
+      scam_type: "N/A",
+      red_flags: [],
+      what_could_happen: "Minimal risk. Standard browsing safety practices still apply.",
+      recommendation: "The link appears safe, but always verify you're on the official domain before entering sensitive information.",
+    };
+  }
+
+  const isScam = text.includes("pay") || text.includes("money") || text.includes("gcash") || text.includes("bank") || text.includes("send") || text.includes("transfer") || text.includes("win") || text.includes("prize") || text.includes("urgent") || text.includes("password");
+  if (isScam) {
+    return {
+      mode: "FREELANCER",
+      language_style: "Taglish",
+      tone: "Casual",
+      summary: "This message shows multiple scam indicators including unsolicited payment requests, urgency tactics, and requests for financial information.",
+      risk_score: 78,
+      risk_level: "Suspicious",
+      confidence: 0.88,
+      scam_type: "Advance Fee Scam",
+      red_flags: [
+        "Requests upfront payment or processing fee",
+        "Urgency or limited-time pressure tactic",
+        "Vague company details and unverifiable claims",
+        "Payment via untraceable method (GCash, wire transfer)",
+      ],
+      what_could_happen: "Victims may lose the upfront payment and never receive the promised goods or services. Personal information shared could be used for identity theft.",
+      recommendation: "Do not send any money or personal information. Block the sender. Report the message to the platform where you received it.",
+    };
+  }
+
+  return {
+    mode: "JOB_SEEKER",
+    language_style: "English",
+    tone: "Formal",
+    summary: "The message appears to be a legitimate communication. No clear scam patterns detected, but remain cautious as the sender was not verified.",
+    risk_score: 15,
+    risk_level: "Low Risk",
+    confidence: 0.65,
+    scam_type: "N/A",
+    red_flags: [],
+    what_could_happen: "Low risk. Standard caution is advised when dealing with unverified senders.",
+    recommendation: "No immediate action needed. If this is a job offer, verify the company independently before sharing any personal information.",
+  };
 }
 
 export async function runWaveScan({
@@ -123,6 +232,10 @@ export async function runWaveScan({
   context,
   evidence,
 }: WaveScanInput): Promise<WaveScanResult> {
+  if (process.env.MOCK_SCAN === "true") {
+    return runMockScan({ inputText, source, url, context, evidence });
+  }
+
   const apiKey = process.env.GEMINI_API_KEY;
 
   if (!apiKey) {
@@ -179,6 +292,22 @@ export async function runWaveScan({
     } catch {
       parsed = null;
     }
+  }
+
+  if (!parsed || typeof parsed !== "object") {
+    parsed = {
+      mode: "REJECTED",
+      language_style: "English",
+      tone: "Casual",
+      summary: rawText || "No response from backend.",
+      risk_score: 0,
+      risk_level: "Safe",
+      confidence: 0,
+      scam_type: "Unknown",
+      red_flags: [],
+      what_could_happen: "N/A",
+      recommendation: "N/A",
+    };
   }
 
   return {

@@ -17,11 +17,7 @@ export function ScanTabs({ value, onValueChange }: ScanTabsProps) {
   return (
     <div
       role="tablist"
-      style={{
-        display: "flex",
-        borderBottom: "0.5px solid var(--border-subtle)",
-        marginBottom: 24,
-      }}
+      className="mb-5 flex w-full rounded-xl border border-border bg-surface p-1 sm:mb-6"
     >
       {tabs.map(({ value: tabValue, label, Icon }) => {
         const active = value === tabValue
@@ -31,23 +27,13 @@ export function ScanTabs({ value, onValueChange }: ScanTabsProps) {
             role="tab"
             aria-selected={active}
             onClick={() => onValueChange(tabValue)}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 7,
-              padding: "10px 18px",
-              fontSize: 13,
-              fontWeight: active ? 500 : 400,
-              color: active ? "var(--foreground)" : "var(--foreground-subtle)",
-              background: "transparent",
-              border: "none",
-              borderBottom: active ? "1.5px solid var(--foreground)" : "1.5px solid transparent",
-              marginBottom: -0.5,
-              cursor: "pointer",
-              transition: "color 0.15s ease, border-color 0.15s ease",
-            }}
+            className={`flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg px-3 py-2 text-[13px] font-medium transition-all duration-150 ${
+              active
+                ? "bg-background-elevated text-foreground shadow-[var(--shadow-elevation-low)]"
+                : "text-foreground-muted hover:text-foreground"
+            }`}
           >
-            <Icon size={14} weight={active ? "fill" : "regular"} />
+            <Icon size={15} weight={active ? "fill" : "bold"} />
             {label}
           </button>
         )

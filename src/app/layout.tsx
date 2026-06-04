@@ -1,21 +1,24 @@
 import type { Metadata } from "next";
 import {
-  Geist,
+  DM_Sans,
+  Sora,
   Geist_Mono,
-  Inter,
 } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
+import { ScanStoreProvider } from "@/lib/scan-store";
 import "./globals.css";
 
-const bodyFont = Geist({
+const bodyFont = DM_Sans({
   variable: "--font-body",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
-const headingFont = Inter({
+const headingFont = Sora({
   variable: "--font-heading",
   subsets: ["latin"],
+  weight: ["600", "700", "800"],
 });
 
 const codeFont = Geist_Mono({
@@ -41,8 +44,10 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
-          {children}
-          <Toaster />
+          <ScanStoreProvider>
+            {children}
+            <Toaster />
+          </ScanStoreProvider>
         </ThemeProvider>
       </body>
     </html>

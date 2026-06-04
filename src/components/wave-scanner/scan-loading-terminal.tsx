@@ -1,7 +1,5 @@
 "use client"
 
-import { CircleNotch } from "@phosphor-icons/react"
-
 import { Card, CardContent } from "@/components/ui/card"
 
 export type LoadingStep = {
@@ -25,29 +23,24 @@ export function ScanLoadingTerminal({
   activeStepIndex,
 }: ScanLoadingTerminalProps) {
   return (
-    <div className="flex min-h-[70vh] items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
-      <Card className="w-full max-w-2xl border-border-subtle bg-card shadow-[var(--shadow-card)]">
+    <div className="flex min-h-[50vh] items-center justify-center px-4 py-8 sm:min-h-[60vh] sm:py-12 lg:px-8">
+      <Card className="w-full max-w-2xl border-border bg-card shadow-[var(--shadow-card)]">
         <CardContent className="p-0">
           <div className="flex items-center justify-between border-b border-border-subtle bg-surface-secondary px-5 py-3">
-            <div className="flex gap-1.5">
-              <span className="h-2.5 w-2.5 rounded-full bg-foreground-subtle" />
-              <span className="h-2.5 w-2.5 rounded-full bg-foreground-subtle/70" />
-              <span className="h-2.5 w-2.5 rounded-full bg-foreground-subtle/50" />
-            </div>
             <p className="text-xs font-medium text-foreground-muted">
               Analyzing
             </p>
           </div>
 
           <div className="space-y-5 p-5 sm:p-6">
-            <div className="rounded-lg bg-background-elevated px-4 py-3 ring-1 ring-inset ring-border-subtle">
-              <div className="flex items-center gap-2 font-mono text-xs text-primary">
+            <div className="rounded-lg border border-border-subtle bg-background-elevated px-4 py-3">
+              <div className="flex items-center gap-2 text-xs text-primary">
                 <span>~</span>
                 <span>&gt;</span>
                 <span className="min-w-0 flex-1 truncate text-foreground-secondary">
                   {commandLabel}
                 </span>
-                <span className="inline-block h-4 w-1 animate-pulse rounded-sm bg-primary/80" />
+                <span className="inline-block h-4 w-0.5 animate-pulse rounded-sm bg-primary/80" />
               </div>
             </div>
 
@@ -58,7 +51,7 @@ export function ScanLoadingTerminal({
                 return (
                   <div
                     key={step.label}
-                    className={`flex items-center gap-2 font-mono text-xs transition-opacity ${
+                    className={`flex items-center gap-2 text-xs transition-opacity ${
                       isActive ? "opacity-100" : "opacity-35"
                     } ${stepTone(step.tone)}`}
                   >
@@ -74,7 +67,7 @@ export function ScanLoadingTerminal({
                 <span className="truncate text-xs text-foreground-muted">
                   {status}
                 </span>
-                <span className="font-mono text-xs text-primary">
+                <span className="text-xs font-medium text-primary">
                   {Math.round(progress)}%
                 </span>
               </div>
@@ -86,13 +79,9 @@ export function ScanLoadingTerminal({
               </div>
             </div>
 
-            <div className="flex items-center gap-2 text-sm text-foreground-muted">
-              <CircleNotch
-                size={18}
-                className="animate-spin text-primary"
-                weight="bold"
-              />
-              <span>Running analysis</span>
+            <div className="flex items-center gap-2 text-xs text-foreground-muted">
+              <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-primary" />
+              <span>Processing...</span>
             </div>
           </div>
         </CardContent>
@@ -104,7 +93,7 @@ export function ScanLoadingTerminal({
 function stepTone(tone?: LoadingStep["tone"]) {
   switch (tone) {
     case "blue":
-      return "text-info"
+      return "text-primary"
     case "yellow":
       return "text-warning"
     case "green":
