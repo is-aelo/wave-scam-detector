@@ -33,7 +33,7 @@ export function ScanTabs({ value, onValueChange }: ScanTabsProps) {
                 : "text-foreground-muted hover:text-foreground"
             }`}
           >
-            <Icon size={15} weight={active ? "fill" : "bold"} />
+            <Icon size={15} weight="bold" />
             {label}
           </button>
         )

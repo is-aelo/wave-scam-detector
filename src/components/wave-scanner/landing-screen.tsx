@@ -2,14 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react"
 
-import {
-  ArrowRight,
-  ChatCenteredText,
-  GlobeHemisphereWest,
-  LinkSimple,
-  Lightning,
-  ShieldCheck,
-} from "@phosphor-icons/react"
+import { ArrowRight, LinkSimple } from "@phosphor-icons/react"
 
 import { Button } from "@/components/ui/button"
 import { LandingDemo } from "@/components/wave-scanner/landing-demo"
@@ -21,17 +14,14 @@ type LandingScreenProps = {
 
 const trustItems = [
   {
-    icon: ShieldCheck,
     value: "No account required",
     label: "Quick scans without signing up",
   },
   {
-    icon: Lightning,
     value: "< 3 sec",
     label: "Average scan time",
   },
   {
-    icon: GlobeHemisphereWest,
     value: "EN / FIL",
     label: "Taglish-aware detection",
   },
@@ -39,19 +29,16 @@ const trustItems = [
 
 const features = [
   {
-    icon: ChatCenteredText,
     title: "Message analysis",
     description:
       "Paste suspicious text from job offers, DMs, emails, or marketplace listings.",
   },
   {
-    icon: LinkSimple,
     title: "URL inspection",
     description:
       "Check links for phishing domains, redirect chains, and suspicious trust signals.",
   },
   {
-    icon: ShieldCheck,
     title: "Actionable guidance",
     description:
       "Get a concise risk score, red flags, and next steps before you proceed.",
@@ -135,30 +122,20 @@ export function LandingScreen({
       {/* Bento stat bar — trust metrics */}
       <div className="mx-auto mt-10 max-w-3xl rounded-xl border border-border-card bg-background-elevated p-4 shadow-[var(--shadow-elevation-mid)] sm:p-5">
         <div className="grid gap-3 sm:grid-cols-3 sm:gap-4">
-          {trustItems.map((item) => {
-            const Icon = item.icon
-
-            return (
-              <div key={item.value} className="flex items-center gap-2.5">
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-surface-secondary">
-                <Icon size={16} className="text-foreground-muted" />
-              </span>
-                <div>
-                  <p className="text-sm font-medium text-foreground">
-                    {item.value}
-                  </p>
-                  <p className="text-xs text-foreground-muted">{item.label}</p>
-                </div>
-              </div>
-            )
-          })}
+          {trustItems.map((item) => (
+            <div key={item.value}>
+              <p className="text-sm font-medium text-foreground">
+                {item.value}
+              </p>
+              <p className="text-xs text-foreground-muted">{item.label}</p>
+            </div>
+          ))}
         </div>
       </div>
 
       {/* Bento feature cards */}
       <div className="mx-auto mt-6 grid max-w-3xl grid-cols-1 gap-4 sm:grid-cols-2">
         {features.map((feature, index) => {
-          const Icon = feature.icon
           const isPrimary = index === 0
 
           return (
@@ -170,18 +147,6 @@ export function LandingScreen({
                   : "bg-surface-secondary sm:p-5"
               } p-5`}
             >
-              <span
-                className={`mb-3 flex items-center justify-center rounded-lg ${
-                  isPrimary
-                    ? "border border-accent-brand-border bg-accent-brand-dim shadow-[var(--accent-chrome-glow)] h-9 w-9 sm:h-10 sm:w-10"
-                    : "bg-accent-brand-dim h-8 w-8"
-                }`}
-              >
-                <Icon
-                  size={isPrimary ? 18 : 14}
-                  className="text-accent-brand"
-                />
-              </span>
               <h2
                 className={`font-semibold text-foreground ${
                   isPrimary ? "text-base sm:text-lg" : "text-sm"

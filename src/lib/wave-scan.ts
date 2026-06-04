@@ -11,6 +11,8 @@ export type WaveScanInput = {
   url?: string;
   context?: string;
   evidence?: string;
+  imageData?: string;
+  imageMimeType?: string;
 };
 
 export type WaveScanResult = {
@@ -84,6 +86,7 @@ function buildPrompt(
   url?: string,
   context?: string,
   evidence?: string,
+  hasImage?: boolean,
 ) {
   const analysisInstructions = url
     ? `Primary task: URL_ANALYSIS mode.
@@ -92,11 +95,16 @@ Do not assume website content unless it is explicitly provided in the evidence.`
     : `Primary task: scam and fraud message analysis.
 Focus on freelancer, job, marketplace, or other risky message patterns.`;
 
+  const imageNote = hasImage
+    ? "\nAn attached screenshot has been provided for visual inspection. Use it to identify visual red flags such as fake logos, spoofed sender names, suspicious formatting, or fabricated credentials."
+    : "";
+
   return `You are "Wave", an AI-powered scam and risk detection assistant.
 
 Analyze the user's input for scam or fraud risk only.
 
 ${analysisInstructions}
+${imageNote}
 
 User Message:
 ${inputText}
@@ -233,6 +241,8 @@ export async function runWaveScan({
   url,
   context,
   evidence,
+  imageData,
+  imageMimeType,
 }: WaveScanInput): Promise<WaveScanResult> {
   if (process.env.MOCK_SCAN === "true") {
     return runMockScan({ inputText, source, url, context, evidence });
@@ -246,16 +256,29 @@ export async function runWaveScan({
 
   const ai = new GoogleGenAI({ apiKey });
 
+  const hasImage = !!(imageData && imageMimeType);
+
+  const parts: Record<string, unknown>[] = [
+    {
+      text: buildPrompt(inputText, source, url, context, evidence, hasImage),
+    },
+  ];
+
+  if (hasImage) {
+    parts.push({
+      inlineData: {
+        mimeType: imageMimeType,
+        data: imageData,
+      },
+    });
+  }
+
   const response = await ai.models.generateContent({
     model: "gemini-3-flash-preview",
     contents: [
       {
         role: "user",
-        parts: [
-          {
-            text: buildPrompt(inputText, source, url, context, evidence),
-          },
-        ],
+        parts,
       },
     ],
     config: {

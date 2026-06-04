@@ -1,11 +1,7 @@
 "use client"
 
 import { useState, type FormEvent } from "react"
-import {
-  PaperPlaneTilt,
-  LockKey,
-  Image,
-} from "@phosphor-icons/react"
+import { PaperPlaneTilt } from "@phosphor-icons/react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -29,6 +25,7 @@ type MessageScanFormProps = {
   onMessageTextChange: (value: string) => void
   onMessageSourceChange: (value: string) => void
   onMessageEvidenceChange: (value: string) => void
+  onAttachmentChange?: (file: File | null) => void
   onSubmit: (event: FormEvent<HTMLFormElement>) => void
 }
 
@@ -51,6 +48,7 @@ export function MessageScanForm({
   onMessageTextChange,
   onMessageSourceChange,
   onMessageEvidenceChange,
+  onAttachmentChange,
   onSubmit,
 }: MessageScanFormProps) {
   const [attachmentName, setAttachmentName] = useState("")
@@ -143,11 +141,8 @@ export function MessageScanForm({
             htmlFor="message-attachment"
             className="flex cursor-pointer items-center justify-between gap-3 rounded-lg border border-dashed border-border bg-surface px-3 py-2.5 text-2sm text-foreground-muted transition-colors hover:border-border-strong hover:bg-surface-raised"
           >
-            <span className="flex min-w-0 items-center gap-2">
-              <Image size={15} className="shrink-0 text-foreground-muted" />
-              <span className="truncate text-2sm text-foreground-muted">
-                {attachmentName || "Attach image evidence"}
-              </span>
+            <span className="truncate text-2sm text-foreground-muted">
+              {attachmentName || "Attach image for more context"}
             </span>
             <span className="shrink-0 text-2xs font-medium uppercase tracking-wider text-foreground-subtle">
               PNG / JPG
@@ -158,14 +153,17 @@ export function MessageScanForm({
             type="file"
             accept="image/*"
             className="sr-only"
-            onChange={(e) => setAttachmentName(e.target.files?.[0]?.name ?? "")}
+            onChange={(e) => {
+              const file = e.target.files?.[0] ?? null
+              setAttachmentName(file?.name ?? "")
+              onAttachmentChange?.(file)
+            }}
           />
         </div>
       </div>
 
       <div className="flex flex-col items-start justify-between gap-3 border-t border-border px-5 py-3.5 sm:flex-row sm:items-center sm:px-6">
-        <span className="flex items-center gap-1.5 text-2xs text-foreground-subtle">
-          <LockKey size={12} />
+        <span className="text-2xs text-foreground-subtle">
           Your input is never stored
         </span>
         <Button

@@ -60,6 +60,8 @@ export async function POST(request: Request) {
           url?: string;
           context?: string;
           evidence?: string;
+          image_data?: string;
+          image_mime_type?: string;
         }
       | null;
 
@@ -68,6 +70,8 @@ export async function POST(request: Request) {
     const url = body?.url?.trim();
     const context = body?.context?.trim();
     const evidence = body?.evidence?.trim();
+    const imageData = body?.image_data?.trim();
+    const imageMimeType = body?.image_mime_type?.trim();
 
     if (!inputText) {
       return Response.json(
@@ -82,6 +86,8 @@ export async function POST(request: Request) {
       url,
       context,
       evidence,
+      imageData,
+      imageMimeType,
     });
 
     return Response.json(result, {

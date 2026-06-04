@@ -2,15 +2,7 @@
 
 import { Suspense, useState, type FormEvent } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import {
-  ChatCircleText,
-  TextT,
-  Camera,
-  PencilLine,
-  Globe,
-  MagnifyingGlass,
-  WarningCircle,
-} from "@phosphor-icons/react"
+
 
 import { LinkScanForm } from "@/components/wave-scanner/link-scan-form"
 import { MessageScanForm } from "@/components/wave-scanner/message-scan-form"
@@ -44,10 +36,12 @@ function ScanPage() {
   const [messageText, setMessageText] = useState("")
   const [messageSource, setMessageSource] = useState("")
   const [messageEvidence, setMessageEvidence] = useState("")
+  const [messageAttachment, setMessageAttachment] = useState<File | null>(null)
   const [urlText, setUrlText] = useState("")
   const [urlSource, setUrlSource] = useState("")
   const [urlContext, setUrlContext] = useState("")
   const [urlEvidence, setUrlEvidence] = useState("")
+  const [urlAttachment, setUrlAttachment] = useState<File | null>(null)
   const [loading, setLoading] = useState(false)
   const [loadingProgressValue, setLoadingProgressValue] = useState(0)
   const [loadingStepIndex, setLoadingStepIndex] = useState(0)
@@ -62,6 +56,8 @@ function ScanPage() {
     url?: string
     context?: string
     evidence?: string
+    image_data?: string
+    image_mime_type?: string
   }): Promise<ScanResponse> {
     try {
       const response = await fetch("/api/scan", {
@@ -85,6 +81,8 @@ function ScanPage() {
       url?: string
       context?: string
       evidence?: string
+      image_data?: string
+      image_mime_type?: string
     },
     mode: ScanMode,
     commandLabel: string,
@@ -128,11 +126,15 @@ function ScanPage() {
 
   async function handleMessageSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    const image_data = messageAttachment ? await fileToBase64(messageAttachment) : undefined
+    const image_mime_type = messageAttachment?.type
     await runScan(
       {
         input_text: messageText,
         source: messageSource || undefined,
         evidence: messageEvidence || undefined,
+        image_data,
+        image_mime_type,
       },
       "message",
       `wave scan "${shorten(messageText)}" --mode message`,
@@ -141,6 +143,8 @@ function ScanPage() {
 
   async function handleLinkSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    const image_data = urlAttachment ? await fileToBase64(urlAttachment) : undefined
+    const image_mime_type = urlAttachment?.type
     await runScan(
       {
         input_text: "Analyze this URL for scam or fraud risk.",
@@ -148,6 +152,8 @@ function ScanPage() {
         url: urlText,
         context: urlContext || undefined,
         evidence: urlEvidence || undefined,
+        image_data,
+        image_mime_type,
       },
       "link",
       `wave scan "${shorten(urlText)}" --mode url`,
@@ -161,16 +167,16 @@ function ScanPage() {
 
   const tips = activeTab === "message"
     ? [
-        { icon: TextT, title: "Paste the full message", description: "Details, numbers, and specific claims help Wave identify patterns." },
-        { icon: ChatCircleText, title: "Select the platform", description: "Different platforms have different scam profiles." },
-        { icon: PencilLine, title: "Add context", description: "Mention anything unusual about the sender or situation." },
-        { icon: Camera, title: "Attach a screenshot", description: "Visual red flags like fake logos or spoofed domains." },
+        { title: "Paste the full message", description: "Details, numbers, and specific claims help Wave identify patterns." },
+        { title: "Select the platform", description: "Different platforms have different scam profiles." },
+        { title: "Add context", description: "Mention anything unusual about the sender or situation." },
+        { title: "Attach a screenshot", description: "Visual red flags like fake logos or spoofed domains." },
       ]
     : [
-        { icon: Globe, title: "Use the full URL", description: "Include https:// and the complete path for accurate analysis." },
-        { icon: ChatCircleText, title: "Mention the source", description: "Where the link appeared helps determine the threat model." },
-        { icon: WarningCircle, title: "Describe the context", description: "What happened around the link — urgency, promises, threats." },
-        { icon: Camera, title: "Screenshots help", description: "Capture the page or message surrounding the link." },
+        { title: "Use the full URL", description: "Include https:// and the complete path for accurate analysis." },
+        { title: "Mention the source", description: "Where the link appeared helps determine the threat model." },
+        { title: "Describe the context", description: "What happened around the link — urgency, promises, threats." },
+        { title: "Screenshots help", description: "Capture the page or message surrounding the link." },
       ]
 
   return (
@@ -209,6 +215,7 @@ function ScanPage() {
                     onMessageTextChange={setMessageText}
                     onMessageSourceChange={setMessageSource}
                     onMessageEvidenceChange={setMessageEvidence}
+                    onAttachmentChange={setMessageAttachment}
                     onSubmit={handleMessageSubmit}
                   />
                 ) : (
@@ -222,6 +229,7 @@ function ScanPage() {
                     onUrlSourceChange={setUrlSource}
                     onUrlContextChange={setUrlContext}
                     onUrlEvidenceChange={setUrlEvidence}
+                    onAttachmentChange={setUrlAttachment}
                     onSubmit={handleLinkSubmit}
                   />
                 )}
@@ -233,24 +241,16 @@ function ScanPage() {
                     Tips for better results
                   </h3>
                   <ul className="space-y-4">
-                    {tips.map((tip) => {
-                      const Icon = tip.icon
-                      return (
-                        <li key={tip.title} className="flex gap-3 text-xs">
-                          <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-border bg-surface">
-                            <Icon size={12} className="text-accent-brand" />
-                          </span>
-                          <div>
-                            <p className="mb-0.5 font-medium text-foreground">
-                              {tip.title}
-                            </p>
-                            <p className="leading-relaxed text-foreground-muted">
-                              {tip.description}
-                            </p>
-                          </div>
-                        </li>
-                      )
-                    })}
+                    {tips.map((tip) => (
+                      <li key={tip.title} className="text-xs">
+                        <p className="mb-0.5 font-medium text-foreground">
+                          {tip.title}
+                        </p>
+                        <p className="leading-relaxed text-foreground-muted">
+                          {tip.description}
+                        </p>
+                      </li>
+                    ))}
                   </ul>
                 </div>
               </aside>
@@ -272,6 +272,18 @@ export default function ScanPageWrapper() {
 
 function sleep(ms: number) {
   return new Promise((resolve) => window.setTimeout(resolve, ms))
+}
+
+function fileToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => {
+      const result = reader.result as string
+      resolve(result.split(",")[1] ?? "")
+    }
+    reader.onerror = reject
+    reader.readAsDataURL(file)
+  })
 }
 
 function shorten(value: string) {
