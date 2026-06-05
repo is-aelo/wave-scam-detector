@@ -5,8 +5,20 @@ export type RateLimitInfo = {
   reset: number
 }
 
+export type RateLimitWindow = {
+  limit: number
+  remaining: number
+  reset: number
+}
+
+export type RateLimitStatus = {
+  perMinute: RateLimitWindow
+  perDay: RateLimitWindow
+}
+
 export type Limiter = {
   limit: (identifier: string) => Promise<RateLimitInfo>
+  check: (identifier: string) => Promise<RateLimitStatus>
 }
 
 export function getClientIp(request: Request): string {
@@ -18,8 +30,8 @@ export function getClientIp(request: Request): string {
   return request.headers.get("x-real-ip") ?? "unknown"
 }
 
-const PER_MIN = Number(process.env.RATE_LIMIT_PER_MIN) || 1
-const PER_DAY = Number(process.env.RATE_LIMIT_PER_DAY) || 3
+const PER_MIN = Number(process.env.RATE_LIMIT_PER_MIN) || 10
+const PER_DAY = Number(process.env.RATE_LIMIT_PER_DAY) || 50
 
 // ── In-memory fallback (local dev) ──────────────────────────────────
 
@@ -71,6 +83,24 @@ function createMemoryLimiter(perMin: number, perDay: number): Limiter {
         limit: perMin,
         remaining: perMin - minuteEntries.length - 1,
         reset: now + MIN_MS,
+      }
+    },
+    async check(identifier: string) {
+      const now = Date.now()
+      const timestamps = (store.get(identifier) ?? []).filter(t => t > now - DAY_MS)
+      const minuteEntries = timestamps.filter(t => t > now - MIN_MS)
+
+      return {
+        perMinute: {
+          limit: perMin,
+          remaining: Math.max(0, perMin - minuteEntries.length),
+          reset: minuteEntries.length > 0 ? minuteEntries[0]! + MIN_MS : now + MIN_MS,
+        },
+        perDay: {
+          limit: perDay,
+          remaining: Math.max(0, perDay - timestamps.length),
+          reset: timestamps.length > 0 ? timestamps[0]! + DAY_MS : now + DAY_MS,
+        },
       }
     },
   }
@@ -126,6 +156,25 @@ async function createUpstashLimiter(perMin: number, perDay: number): Promise<Lim
         limit: minResult.limit,
         remaining: Math.min(minResult.remaining, dayResult.remaining),
         reset: Math.min(minResult.reset, dayResult.reset),
+      }
+    },
+    async check(identifier: string) {
+      const [minResult, dayResult] = await Promise.all([
+        minuteLimiter.getRemaining(identifier),
+        dayLimiter.getRemaining(identifier),
+      ])
+
+      return {
+        perMinute: {
+          limit: minResult.limit,
+          remaining: minResult.remaining,
+          reset: minResult.reset,
+        },
+        perDay: {
+          limit: dayResult.limit,
+          remaining: dayResult.remaining,
+          reset: dayResult.reset,
+        },
       }
     },
   }

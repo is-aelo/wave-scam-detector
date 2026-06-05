@@ -1,7 +1,7 @@
 import { runWaveScan } from "@/lib/wave-scan";
 import { getClientIp, getLimiter } from "@/lib/rate-limit";
 
-function isGeminiRateLimit(error: unknown): boolean {
+function isRateLimitError(error: unknown): boolean {
   if (!(error instanceof Error)) return false;
   const msg = error.message.toLowerCase();
   return (
@@ -18,6 +18,8 @@ const RATE_LIMIT_MESSAGE =
   "Too many scans at once. Give it a few seconds, then tap try again.";
 const DAILY_LIMIT_MESSAGE =
   "You've reached your scan limit for today. Come back tomorrow.";
+const PROVIDER_LIMIT_MESSAGE =
+  "The scan service is temporarily busy. Wait a moment and try again.";
 
 function formatReset(reset: number): string {
   const seconds = Math.ceil((reset - Date.now()) / 1000);
@@ -98,16 +100,16 @@ export async function POST(request: Request) {
       },
     });
   } catch (error) {
-    const isGeminiLimited = isGeminiRateLimit(error);
+    const isProviderLimited = isRateLimitError(error);
 
     return Response.json(
       {
         ok: false,
-        error: isGeminiLimited
-          ? RATE_LIMIT_MESSAGE
+        error: isProviderLimited
+          ? PROVIDER_LIMIT_MESSAGE
           : "Couldn't finish the scan. Double-check your input and try again.",
       },
-      { status: isGeminiLimited ? 429 : 500 },
+      { status: isProviderLimited ? 429 : 500 },
     );
   }
 }

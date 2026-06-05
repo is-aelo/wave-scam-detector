@@ -64,7 +64,7 @@ Rate limiting uses Upstash Redis (serverless, HTTP-based). To enable it on Verce
 2. **Standalone Upstash:** Set `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` in your Vercel environment variables.
 3. **Done** — the limiter auto-detects either set of env vars and uses Redis. If neither is present, it falls back to in-memory (useful for local dev).
 
-Default limits: **1 request per minute**, **3 per day**. Override with `RATE_LIMIT_PER_MIN` / `RATE_LIMIT_PER_DAY` env vars.
+Default limits: **10 requests per minute**, **50 per day**. Override with `RATE_LIMIT_PER_MIN` / `RATE_LIMIT_PER_DAY` env vars.
 
 ## Agent Behavior
 

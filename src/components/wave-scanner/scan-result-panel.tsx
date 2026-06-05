@@ -1,5 +1,6 @@
 import {
   ArrowRight,
+  ArrowSquareOut,
   ClockCounterClockwise,
   ShieldCheck,
   WarningCircle,
@@ -202,7 +203,41 @@ export function ScanResultPanel({
             </div>
           </div>
 
-          {/* Card 5 & 6: Impact + Guidance full width */}
+          {/* Card 5: Sources */}
+          {result.groundingChunks && result.groundingChunks.length > 0 && (
+            <div className="rounded-xl border border-border-card bg-background-elevated px-4 py-4 shadow-[var(--shadow-elevation-mid)] sm:px-6 sm:py-5">
+              <p className="mb-3 text-2xs font-semibold uppercase tracking-wider text-foreground-subtle sm:mb-3.5">
+                Sources
+              </p>
+              <ul className="space-y-3">
+                {result.groundingChunks.map((chunk, i) => (
+                  <li key={i}>
+                    <a
+                      href={chunk.uri}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group flex items-start gap-2.5 rounded-lg px-0 py-1 transition-colors hover:bg-primary-dim/30 -mx-2 px-2"
+                    >
+                      <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+                        <span className="flex items-center gap-1.5 text-xs font-medium text-foreground transition-colors group-hover:text-primary">
+                          {chunk.title || chunk.uri}
+                          <ArrowSquareOut
+                            size={12}
+                            className="shrink-0 text-foreground-muted transition-colors group-hover:text-primary"
+                          />
+                        </span>
+                        <span className="truncate text-2xs text-foreground-subtle">
+                          {chunk.domain}
+                        </span>
+                      </div>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Card 6 & 7: Impact + Guidance full width */}
           <div className="flex flex-col gap-4">
             <div className="rounded-xl border-2 border-accent-brand/30 bg-background-elevated px-4 py-4 shadow-[var(--shadow-elevation-mid)] sm:px-5 sm:py-5">
               <p className="mb-2 text-2xs font-semibold uppercase tracking-wider text-foreground-subtle sm:mb-2.5">
@@ -234,26 +269,10 @@ export function ScanResultPanel({
                 <span className="text-2xs text-foreground-subtle">{modeLabel}</span>
               </div>
 
-              <div className="flex items-center gap-2">
-                <span className="text-2xs text-foreground-subtle">
-                  Analysis confidence
-                </span>
-                <div className="h-0.5 w-16 overflow-hidden rounded-full bg-border-subtle sm:w-20">
-                  <div
-                    className="h-full rounded-full transition-all duration-500 ease-out"
-                    style={{
-                      width: `${Math.min(100, Math.max(0, Math.round((result.parsed.confidence ?? 0) * 100)))}%`,
-                      background: getRiskAccentColor(displayRiskLevel),
-                    }}
-                  />
-                </div>
-                <span
-                  className="text-2xs font-medium"
-                  style={{ color: getRiskAccentColor(displayRiskLevel) }}
-                >
-                  {formatPercent(result.parsed.confidence)}
-                </span>
-              </div>
+              <p className="text-2xs leading-relaxed text-foreground-subtle">
+                Wave is AI-powered and can make mistakes.{" "}
+                Always proceed with caution.
+              </p>
             </div>
           </div>
         </div>

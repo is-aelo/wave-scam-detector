@@ -12,6 +12,7 @@ import { ScannerNav } from "@/components/wave-scanner/scanner-nav"
 import type { LoadingStep } from "@/components/wave-scanner/scan-loading-terminal"
 import type { ScanMode, ScanResponse } from "@/lib/wave-scan-view"
 import { useScanStore } from "@/lib/scan-store"
+import { useRateLimits } from "@/lib/use-rate-limits"
 
 const loadingSteps: LoadingStep[] = [
   { label: "Parsing input structure...", tone: "blue" },
@@ -49,6 +50,7 @@ function ScanPage() {
   const [loadingStatus, setLoadingStatus] = useState(
     "Running analysis - this takes a few seconds",
   )
+  const { limited } = useRateLimits()
 
   async function fetchScan(payload: {
     input_text: string
@@ -170,7 +172,7 @@ function ScanPage() {
         { title: "Paste the full message", description: "Details, numbers, and specific claims help Wave identify patterns." },
         { title: "Select the platform", description: "Different platforms have different scam profiles." },
         { title: "Add context", description: "Mention anything unusual about the sender or situation." },
-        { title: "Attach a screenshot", description: "Visual red flags like fake logos or spoofed domains." },
+        { title: "Attach a screenshot", description: "Include the conversation, message, job post, or marketplace for deeper analysis." },
       ]
     : [
         { title: "Use the full URL", description: "Include https:// and the complete path for accurate analysis." },
@@ -206,12 +208,13 @@ function ScanPage() {
               <div>
                 <ScanTabs value={activeTab} onValueChange={handleTabChange} />
 
-                {activeTab === "message" ? (
+                  {activeTab === "message" ? (
                   <MessageScanForm
                     messageText={messageText}
                     messageSource={messageSource}
                     messageEvidence={messageEvidence}
                     loading={loading}
+                    rateLimited={limited !== null}
                     onMessageTextChange={setMessageText}
                     onMessageSourceChange={setMessageSource}
                     onMessageEvidenceChange={setMessageEvidence}
@@ -225,6 +228,7 @@ function ScanPage() {
                     urlContext={urlContext}
                     urlEvidence={urlEvidence}
                     loading={loading}
+                    rateLimited={limited !== null}
                     onUrlTextChange={setUrlText}
                     onUrlSourceChange={setUrlSource}
                     onUrlContextChange={setUrlContext}

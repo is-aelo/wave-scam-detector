@@ -16,9 +16,11 @@ export type WaveScanInput = {
 };
 
 export type WaveScanResult = {
-  ok: true;
-  rawText: string;
-  parsed: unknown;
+  ok: true
+  rawText: string
+  parsed: unknown
+  groundingChunks?: { title: string; uri: string; domain: string }[]
+  webSearchQueries?: string[]
 };
 
 const responseSchema = {
@@ -128,6 +130,14 @@ Keep summary, what_could_happen, and recommendation concise — no more than 2 s
 You MUST always return valid JSON that matches the schema exactly — never return plain text.`;
 }
 
+function mockGrounding(): WaveScanResult["groundingChunks"] {
+  return [
+    { title: "Phishing Scam Warning — FTC", uri: "https://www.ftc.gov/phishing", domain: "ftc.gov" },
+    { title: "How to Spot Fake Job Offers", uri: "https://www.saferinternet.org/job-scams", domain: "saferinternet.org" },
+    { title: "GCash Fraud Advisory", uri: "https://www.gcash.com/security", domain: "gcash.com" },
+  ]
+}
+
 async function runMockScan({
   inputText,
   url,
@@ -135,7 +145,7 @@ async function runMockScan({
   await mockDelay();
   const result = mockResult(inputText, url);
   const rawText = JSON.stringify(result);
-  return { ok: true, rawText, parsed: result };
+  return { ok: true, rawText, parsed: result, groundingChunks: mockGrounding() };
 }
 
 function mockDelay(): Promise<void> {
@@ -287,6 +297,9 @@ export async function runWaveScan({
       maxOutputTokens: 8192,
       responseMimeType: "application/json",
       responseSchema,
+      tools: [
+        { googleSearch: {} },
+      ],
       safetySettings: [
         {
           category: HarmCategory.HARM_CATEGORY_HARASSMENT,
@@ -330,9 +343,32 @@ export async function runWaveScan({
     throw new Error("The AI returned an empty response. Please try again.");
   }
 
+  const candidate = response.candidates?.[0]
+  const groundingMeta = candidate?.groundingMetadata
+  const groundingChunks = groundingMeta?.groundingChunks
+    ?.map((c) => c.web)
+    .filter((w): w is NonNullable<typeof w> => !!w?.uri)
+    .map((w) => ({
+      title: w.title ?? "",
+      uri: w.uri!,
+      domain: w.domain ?? extractDomain(w.uri!),
+    }))
+
   return {
     ok: true,
     rawText: rawJson,
     parsed,
+    groundingChunks: groundingChunks?.length ? groundingChunks : undefined,
+    webSearchQueries: groundingMeta?.webSearchQueries?.length
+      ? groundingMeta.webSearchQueries
+      : undefined,
   };
+}
+
+function extractDomain(uri: string): string {
+  try {
+    return new URL(uri).hostname
+  } catch {
+    return uri
+  }
 }

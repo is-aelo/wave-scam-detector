@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { FieldLabel } from "@/components/ui/field-label"
+import { RateLimitBadge } from "@/components/ui/rate-limit-badge"
 import {
   Select,
   SelectContent,
@@ -22,6 +23,7 @@ type MessageScanFormProps = {
   messageSource: string
   messageEvidence: string
   loading: boolean
+  rateLimited: boolean
   onMessageTextChange: (value: string) => void
   onMessageSourceChange: (value: string) => void
   onMessageEvidenceChange: (value: string) => void
@@ -45,6 +47,7 @@ export function MessageScanForm({
   messageSource,
   messageEvidence,
   loading,
+  rateLimited,
   onMessageTextChange,
   onMessageSourceChange,
   onMessageEvidenceChange,
@@ -142,7 +145,7 @@ export function MessageScanForm({
             className="flex cursor-pointer items-center justify-between gap-3 rounded-lg border border-dashed border-border bg-surface px-3 py-2.5 text-2sm text-foreground-muted transition-colors hover:border-border-strong hover:bg-surface-raised"
           >
             <span className="truncate text-2sm text-foreground-muted">
-              {attachmentName || "Attach image for more context"}
+              {attachmentName || "Upload conversation, message, job post, or marketplace screenshot"}
             </span>
             <span className="shrink-0 text-2xs font-medium uppercase tracking-wider text-foreground-subtle">
               PNG / JPG
@@ -168,13 +171,14 @@ export function MessageScanForm({
         </span>
         <Button
           type="submit"
-          disabled={loading || !messageText.trim()}
+          disabled={loading || rateLimited || !messageText.trim()}
           className="h-9 w-full rounded-lg px-5 text-2sm sm:w-auto"
         >
           <PaperPlaneTilt size={13} weight="fill" />
           {loading ? "Scanning..." : "Analyze message"}
         </Button>
       </div>
+      <RateLimitBadge />
     </form>
   )
 }

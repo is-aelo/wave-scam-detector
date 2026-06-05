@@ -1,3 +1,9 @@
+export type GroundingChunk = {
+  title: string
+  uri: string
+  domain: string
+}
+
 export type ParsedScan = {
   mode?: string
   language_style?: string
@@ -17,6 +23,8 @@ export type ScanResponse =
       ok: true
       rawText: string
       parsed: unknown
+      groundingChunks?: GroundingChunk[]
+      webSearchQueries?: string[]
     }
   | {
       ok: false

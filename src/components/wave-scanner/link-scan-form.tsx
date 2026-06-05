@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { FieldLabel } from "@/components/ui/field-label"
+import { RateLimitBadge } from "@/components/ui/rate-limit-badge"
 
 type LinkScanFormProps = {
   urlText: string
@@ -14,6 +15,7 @@ type LinkScanFormProps = {
   urlContext: string
   urlEvidence: string
   loading: boolean
+  rateLimited: boolean
   onUrlTextChange: (value: string) => void
   onUrlSourceChange: (value: string) => void
   onUrlContextChange: (value: string) => void
@@ -28,6 +30,7 @@ export function LinkScanForm({
   urlContext,
   urlEvidence,
   loading,
+  rateLimited,
   onUrlTextChange,
   onUrlSourceChange,
   onUrlContextChange,
@@ -142,13 +145,14 @@ export function LinkScanForm({
         </span>
         <Button
           type="submit"
-          disabled={loading || !urlText.trim()}
+          disabled={loading || rateLimited || !urlText.trim()}
           className="h-9 w-full rounded-lg px-5 text-2sm sm:w-auto"
         >
           <PaperPlaneTilt size={13} weight="fill" />
           {loading ? "Checking..." : "Analyze URL"}
         </Button>
       </div>
+      <RateLimitBadge />
     </form>
   )
 }
