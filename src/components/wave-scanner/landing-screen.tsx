@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 
 import { ArrowRight, LinkSimple } from "@phosphor-icons/react"
 
@@ -18,7 +18,7 @@ const trustItems = [
     label: "Quick scans without signing up",
   },
   {
-    value: "< 3 sec",
+    value: "< 20 sec",
     label: "Average scan time",
   },
   {
@@ -49,7 +49,6 @@ export function LandingScreen({
   onCheckMessage,
   onCheckUrl,
 }: LandingScreenProps) {
-  const sectionRef = useRef<HTMLElement>(null)
   const [mouse, setMouse] = useState({ x: 0.5, y: 0.15 })
   const [canTrack, setCanTrack] = useState(false)
 
@@ -61,24 +60,26 @@ export function LandingScreen({
     return () => mq.removeEventListener("change", onChange)
   }, [])
 
-  const handleMouse = useCallback((e: React.MouseEvent) => {
-    if (!sectionRef.current) return
-    const rect = sectionRef.current.getBoundingClientRect()
+  const handleMouse = useCallback((e: MouseEvent) => {
     setMouse({
-      x: (e.clientX - rect.left) / rect.width,
-      y: (e.clientY - rect.top) / rect.height,
+      x: e.clientX / window.innerWidth,
+      y: e.clientY / window.innerHeight,
     })
   }, [])
 
+  useEffect(() => {
+    if (!canTrack) return
+    window.addEventListener("mousemove", handleMouse)
+    return () => window.removeEventListener("mousemove", handleMouse)
+  }, [canTrack, handleMouse])
+
   return (
     <section
-      ref={sectionRef}
-      onMouseMove={canTrack ? handleMouse : undefined}
       className="relative mx-auto w-full max-w-5xl px-4 pb-12 pt-10 sm:px-6 sm:pt-16 lg:px-8"
     >
       {canTrack && (
         <div
-          className="pointer-events-none absolute inset-0 -z-10"
+          className="pointer-events-none fixed inset-0 -z-10"
           style={{
             background: `radial-gradient(600px circle at ${mouse.x * 100}% ${mouse.y * 100}%, rgba(74,106,138,0.08), transparent 50%)`,
           }}
