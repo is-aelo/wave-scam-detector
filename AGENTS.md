@@ -60,7 +60,7 @@ Use this map first to avoid rediscovering the app structure.
 
 Rate limiting uses Upstash Redis (serverless, HTTP-based). To enable it on Vercel:
 
-1. **Vercel KV (recommended):** Go to your Vercel project dashboard → Storage → Create KV Database. Vercel auto-injects `KV_REST_API_URL` and `KV_REST_API_TOKEN` — no code changes needed.
+1. **Upstash Redis via Marketplace (recommended):** Go to your Vercel project dashboard → Storage → Browse Marketplace → find **Upstash Redis** (a key-value / KV store) → install and connect it to your project. Vercel auto-injects `KV_REST_API_URL` and `KV_REST_API_TOKEN` — no code changes needed.
 2. **Standalone Upstash:** Set `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` in your Vercel environment variables.
 3. **Done** — the limiter auto-detects either set of env vars and uses Redis. If neither is present, it falls back to in-memory (useful for local dev).
 
